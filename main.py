@@ -1,5 +1,7 @@
 import json
-from plots import loot_pie, loot_bars
+from typing import List
+
+import plots
 from ledger import Ledger
 
 team_x = "Team X - Rainbow"
@@ -10,13 +12,18 @@ with open("fusion-history.json") as fusion_history:
 
 guild = Ledger(history)
 
-guild.split_teams(history, team_y)
-guild.name_list()
-guild.loot_count_no_os()
+team_y_dataset = guild.get_main_spec_dataset(team_y)
+team_x_dataset = guild.get_main_spec_dataset(team_x)
 
-loot_pie(guild.total_loot, guild.raiders)
+charts: List[plots.Chart] = [
+    plots.PieChart(team_y_dataset),
+    plots.BarChart(team_y_dataset),
+    plots.PieChart(team_x_dataset),
+    plots.BarChart(team_x_dataset),
+]
 
-loot_bars(guild.total_loot, guild.raiders)
+for chart in charts:
+    chart.render()
 
 print(guild.raiders)
 print(guild.total_loot)

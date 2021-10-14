@@ -1,50 +1,123 @@
-from typing import Dict, List
+from __future__ import annotations
+
+import functools
+from typing import Dict, List, Any, Tuple
+from dataclasses import dataclass
+
+DataSet = List[Tuple[str, int]]
+
+
+@dataclass
+class ReceivedItem:
+    item_id: int
+    is_offspec: bool
+    officer_note: str
+    raw_data: dict
+
+    @classmethod
+    def parse(cls, data: dict) -> ReceivedItem:
+        kwargs = {
+            "item_id": data["item_id"],
+            "is_offspec": data["pivot"]["is_offspec"],
+            "officer_note": data["pivot"]["officer_note"] or "",
+            "raw_data": data
+        }
+        return cls(**kwargs)
+
+    @property
+    def is_banked(self) -> bool:
+        return "Banking" in self.officer_note
+
+@dataclass
+class Player:
+    raw_data: dict
+    name: str
+    id: int
+    raid_group_name: str
+
+    @classmethod
+    def parse(cls, data: dict) -> Player:
+        kwargs = {
+            key: data[key] for key in ["name", "id", "raid_group_name"]
+        }
+        kwargs["raw_data"] = data
+        return cls(**kwargs)
+
+    @property
+    def received(self) -> List[ReceivedItem]:
+        return [ReceivedItem.parse(item_data) for item_data in self.raw_data["received"]]
+
+    @property
+    def main_spec_received(self) -> List[ReceivedItem]:
+        return [
+            item for item in self.received
+            if not (item.is_offspec or item.is_banked)
+        ]
+
+
+class Team(str):
+    def __contains__(self, item) -> bool:
+        contains = False
+        if isinstance(item, Player):
+            contains = self == item.raid_group_name
+
+        return contains
+
+
+@dataclass
+class HistoryData:
+    players: List[Player]
+
+    @classmethod
+    def parse(cls, data: List[Dict]) -> HistoryData:
+        kwargs = {
+            'players': [Player.parse(datum) for datum in data]
+        }
+        return cls(**kwargs)
 
 
 class Ledger:
-    team: Dict = {"member": []}
+    team: Dict[str, List[Player]] = {"members": []}
     raiders: List = []
     total_loot: List = []
+    loot_mapping: Dict[str, int]
 
-    def __init__(self, history: Dict) -> None:
-        self.history: Dict = history
+    def __init__(self, history: List[dict]) -> None:
+        self.history: HistoryData = HistoryData.parse(history)
+        self.teams = {}
+        self.split_teams()
 
-    def split_teams(self, history: Dict, team_name: str) -> None:
-        index = 0
-        for entry in history:
-            if history[index]["raid_group_name"] == team_name:
-                self.team["member"].append(entry)
-            index += 1
+    def split_teams(self) -> None:
+        team_names = {player.raid_group_name for player in self.history.players}
+        for name in team_names:
+            self._split_team(name)
 
-    def name_list(self) -> None:
-        member_index = 0
-        for entry in self.team["member"]:
-            self.raiders.append(self.team["member"][member_index]["name"])
-            member_index += 1
+    def _split_team(self, team_name: str) -> None:
+        for player in self.history.players:
+            if player not in Team(team_name):
+                continue
 
-    def loot_count(self) -> None:
-        loot_total = 0
-        member_index = 0
-        for entry in self.team["member"]:
-            for item in self.team["member"][member_index]["received"]:
-                loot_total += 1
-            self.total_loot.append(loot_total)
-            loot_total = 0
-            member_index += 1
+            self.teams[team_name] = [*self.teams.get(team_name, []), player]
 
-    def loot_count_no_os(self) -> None:
-        loot_total = 0
-        item_counter = 0
-        member_index = 0
-        for entry in self.team["member"]:
-            for item in self.team["member"][member_index]["received"]:
-                if self.team["member"][member_index]["received"][item_counter]["pivot"]["is_offspec"] == 0:
-                    loot_total += 1
-                if self.team["member"][member_index]["received"][item_counter]["pivot"][
-                    "officer_note"] == "Votes: 0 \"Banking\"":
-                    loot_total -= 1
-                item_counter += 1
-            self.total_loot.append(loot_total)
-            loot_total = 0
-            item_counter = 0
-            member_index += 1
+    @property
+    def loot_allocation_all(self) -> Dict[str, int]:
+        return {
+            team_name: {member.name: len(member.received) for member in members}
+            for team_name, members in self.teams.items()
+        }
+
+    @property
+    def loot_allocation_main_spec(self) -> Dict[str, int]:
+        return {
+            team_name: {member.name: len(member.main_spec_received) for member in members}
+            for team_name, members in self.teams.items()
+        }
+
+    @functools.lru_cache(maxsize=2)
+    def get_main_spec_dataset(self, team_name: str) -> DataSet:
+        points = sorted(
+            self.loot_allocation_main_spec.get(team_name, {}).items(),
+            key=lambda item: item[1],
+            reverse=True,
+        )
+        return points
