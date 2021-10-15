@@ -18,25 +18,34 @@ class Chart:
     def render(self) -> None:
         raise NotImplementedError("Do not invoke the interface directly!")
 
+    def populate_chart(self) -> None:
+        raise NotImplementedError("Do not invoke the interface directly!")
+
 
 class PieChart(Chart):
     def __init__(self, data: DataPoints):
         self.data = data
 
-    def render(self) -> None:
+    def populate_chart(self) -> None:
         labels, values = self.normalise_dataset()
         fig1, ax1 = plt.subplots()
         ax1.pie(values, labels=labels, autopct='%1.1f%%', pctdistance=0.8)
         ax1.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
 
+    def render(self) -> None:
+        self.populate_chart()
         plt.show()
+
+    def save_chart(self):
+        self.populate_chart()
+        plt.savefig("loot-pie.png")
 
 
 class BarChart(Chart):
     def __init__(self, data: DataPoints):
         self.data = data
 
-    def render(self) -> None:
+    def populate_chart(self) -> None:
         labels, values = self.normalise_dataset()
         plt.rcdefaults()
         fig, ax = plt.subplots()
@@ -50,4 +59,10 @@ class BarChart(Chart):
         ax.set_xlabel('Loot')
         ax.set_title('Loot Assignment Totals')
 
+    def render(self) -> None:
+        self.populate_chart()
         plt.show()
+
+    def save_chart(self) -> None:
+        self.populate_chart()
+        plt.savefig()
