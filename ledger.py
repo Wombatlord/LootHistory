@@ -54,9 +54,11 @@ class ReceivedItem:
     def is_excluded(self) -> bool:
         exclusions = ["Banking",
                       "PvP",
+                      "OS",
+                      "OSPvP",
                       "Other"]
 
-        return self.officer_note in exclusions
+        return any(exclusion in self.officer_note for exclusion in exclusions)
 
 
 @dataclass
@@ -82,7 +84,7 @@ class Player:
     def main_spec_received(self) -> List[ReceivedItem]:
         return [
             item for item in self.received
-            if (item.is_mainspec or item.is_upgrade)
+            if not item.is_excluded
         ]
 
 
