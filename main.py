@@ -1,4 +1,8 @@
+#! /usr/bin/env python3
+import functools
 import json
+import operator
+import sys
 from typing import List
 
 import plots
@@ -7,23 +11,33 @@ from ledger import Ledger
 team_x = "Team X - Rainbow"
 team_y = "Team Y - nicorn"
 
-with open("fusion-history.json") as fusion_history:
-    history = json.load(fusion_history)
+_teams = {"X": team_x, "Y": team_y}
 
-guild = Ledger(history)
 
-team_y_dataset = guild.get_main_spec_dataset(team_y)
-team_x_dataset = guild.get_main_spec_dataset(team_x)
+def parse_args() -> List[str]:
+    args = sys.argv[1:]
+    team_flags = {*_teams.keys()}
+    return [*({*args} & team_flags)]
 
-charts: List[plots.Chart] = [
-    plots.PieChart(team_y_dataset),
-    plots.BarChart(team_y_dataset),
-    plots.PieChart(team_x_dataset),
-    plots.BarChart(team_x_dataset),
-]
 
-for chart in charts:
-    chart.render()
+def main(teams: List[str]) -> None:
+    with open("fusion-history.json") as fusion_history:
+        history = json.load(fusion_history)
 
-print(guild.raiders)
-print(guild.total_loot)
+    guild = Ledger(history)
+
+    datasets = [guild.get_main_spec_dataset(_teams[team]) for team in teams]
+    charts = functools.reduce(
+        operator.add,
+        [
+            [constructor(dataset) for dataset in datasets]
+            for constructor in [plots.PieChart, plots.BarChart]
+        ]
+    )
+
+    for chart in charts:
+        chart.render()
+
+
+teams = parse_args()
+main(teams)

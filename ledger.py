@@ -78,8 +78,6 @@ class HistoryData:
 
 class Ledger:
     team: Dict[str, List[Player]] = {"members": []}
-    raiders: List = []
-    total_loot: List = []
     loot_mapping: Dict[str, int]
 
     def __init__(self, history: List[dict]) -> None:
