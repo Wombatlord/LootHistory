@@ -27,12 +27,36 @@ class ReceivedItem:
         return cls(**kwargs)
 
     @property
+    def is_pattern_or_plan(self) -> bool:
+        return "Pattern" in self.item_name or "Plan" in self.item_name
+
+    @property
+    def is_mainspec(self) -> bool:
+        return "Mainspec BIS" in self.officer_note or "Best in Slot" in self.officer_note
+
+    @property
+    def is_upgrade(self) -> bool:
+        return "Upgrade" in self.officer_note
+
+    @property
     def is_banked(self) -> bool:
         return "Banking" in self.officer_note
 
     @property
-    def is_pattern_or_plan(self) -> bool:
-        return "Pattern" in self.item_name or "Plan" in self.item_name
+    def is_pvp(self) -> bool:
+        return "PvP" in self.officer_note or "OSPvP" in self.officer_note
+
+    @property
+    def is_other(self) -> bool:
+        return "Other" in self.officer_note
+
+    @property
+    def is_excluded(self) -> bool:
+        exclusions = ["Banking",
+                      "PvP",
+                      "Other"]
+
+        return self.officer_note in exclusions
 
 
 @dataclass
@@ -58,7 +82,7 @@ class Player:
     def main_spec_received(self) -> List[ReceivedItem]:
         return [
             item for item in self.received
-            if not (item.is_offspec or item.is_banked or item.is_pattern_or_plan)
+            if (item.is_mainspec or item.is_upgrade)
         ]
 
 
