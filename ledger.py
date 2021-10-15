@@ -10,6 +10,7 @@ DataSet = List[Tuple[str, int]]
 @dataclass
 class ReceivedItem:
     item_id: int
+    item_name: str
     is_offspec: bool
     officer_note: str
     raw_data: dict
@@ -18,6 +19,7 @@ class ReceivedItem:
     def parse(cls, data: dict) -> ReceivedItem:
         kwargs = {
             "item_id": data["item_id"],
+            "item_name": data["name"],
             "is_offspec": data["pivot"]["is_offspec"],
             "officer_note": data["pivot"]["officer_note"] or "",
             "raw_data": data
@@ -27,6 +29,11 @@ class ReceivedItem:
     @property
     def is_banked(self) -> bool:
         return "Banking" in self.officer_note
+
+    @property
+    def is_pattern_or_plan(self) -> bool:
+        return "Pattern" in self.item_name or "Plan" in self.item_name
+
 
 @dataclass
 class Player:
@@ -51,7 +58,7 @@ class Player:
     def main_spec_received(self) -> List[ReceivedItem]:
         return [
             item for item in self.received
-            if not (item.is_offspec or item.is_banked)
+            if not (item.is_offspec or item.is_banked or item.is_pattern_or_plan)
         ]
 
 
