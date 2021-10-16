@@ -40,8 +40,8 @@ def main(teams: List[str]) -> None:
     )
 
     for chart in charts:
-        chart.render()
-        # chart.save_chart(sys.argv[1])
+        # chart.render()
+        chart.save_chart(sys.argv[1])
 
 
 teams = parse_args()
