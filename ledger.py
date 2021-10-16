@@ -56,6 +56,7 @@ class ReceivedItem:
                       "PvP",
                       "OS",
                       "OSPvP",
+                      "Pass",
                       "Other"]
 
         return any(exclusion in self.officer_note for exclusion in exclusions)
@@ -67,13 +68,22 @@ class Player:
     name: str
     id: int
     raid_group_name: str
+    role: str
+    role_color: str
 
     @classmethod
     def parse(cls, data: dict) -> Player:
-        kwargs = {
-            key: data[key] for key in ["name", "id", "raid_group_name"]
-        }
-        kwargs["raw_data"] = data
+        # kwargs = {
+        #     key: data[key] for key in ["name", "id", "raid_group_name"]
+        # }
+
+        kwargs = {"raw_data": data,
+                  "name": data["name"],
+                  "id": data["id"],
+                  "raid_group_name": data["raid_group_name"],
+                  "role": data["class"],
+                  "role_color": None}
+        # kwargs["raw_data"] = data
         return cls(**kwargs)
 
     @property
@@ -110,12 +120,22 @@ class HistoryData:
 
 
 class Ledger:
-    team: Dict[str, List[Player]] = {"members": []}
     loot_mapping: Dict[str, int]
+    role_colors = {"Warrior": "brown",
+                   "Rogue": "yellow",
+                   "Hunter": "green",
+                   "Mage": "cyan",
+                   "Warlock": "purple",
+                   "Priest": "white",
+                   "Druid": "orange",
+                   "Paladin": "pink",
+                   "Shaman": "blue",
+                   }
 
     def __init__(self, history: List[dict]) -> None:
         self.history: HistoryData = HistoryData.parse(history)
         self.teams = {}
+        self.assign_role_colors()
         self.split_teams()
 
     def split_teams(self) -> None:
@@ -129,6 +149,11 @@ class Ledger:
                 continue
 
             self.teams[team_name] = [*self.teams.get(team_name, []), player]
+
+    def assign_role_colors(self):
+        for player in self.history.players:
+            if player.role in self.role_colors:
+                player.role_color = self.role_colors[player.role]
 
     @property
     def loot_allocation_all(self) -> Dict[str, int]:

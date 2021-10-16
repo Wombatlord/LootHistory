@@ -26,6 +26,10 @@ def main(teams: List[str]) -> None:
 
     guild = Ledger(history)
 
+    # sanity checking color assignment to players
+    for player in guild.teams[team_y]:
+        print(f"{player.name} : {player.role} : {player.role_color}")
+
     datasets = [guild.get_main_spec_dataset(_teams[team]) for team in teams]
     charts = functools.reduce(
         operator.add,
@@ -37,6 +41,7 @@ def main(teams: List[str]) -> None:
 
     for chart in charts:
         chart.render()
+        # chart.save_chart(sys.argv[1])
 
 
 teams = parse_args()

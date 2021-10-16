@@ -36,9 +36,9 @@ class PieChart(Chart):
         self.populate_chart()
         plt.show()
 
-    def save_chart(self):
+    def save_chart(self, team_name: str):
         self.populate_chart()
-        plt.savefig("loot-pie.png")
+        plt.savefig(f"{team_name}-loot-pie.png")
 
 
 class BarChart(Chart):
@@ -63,6 +63,6 @@ class BarChart(Chart):
         self.populate_chart()
         plt.show()
 
-    def save_chart(self) -> None:
+    def save_chart(self, team_name) -> None:
         self.populate_chart()
-        plt.savefig()
+        plt.savefig(f"{team_name}-loot-bars")
