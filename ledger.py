@@ -132,6 +132,8 @@ class Ledger:
                    "Shaman": "blue",
                    }
 
+    color_sequence: List[str] = []
+
     def __init__(self, history: List[dict]) -> None:
         self.history: HistoryData = HistoryData.parse(history)
         self.teams = {}
@@ -176,4 +178,5 @@ class Ledger:
             key=lambda item: item[1],
             reverse=True,
         )
+
         return points

@@ -27,10 +27,22 @@ def main(teams: List[str]) -> None:
     guild = Ledger(history)
 
     # sanity checking color assignment to players
-    for player in guild.teams[team_y]:
-        print(f"{player.name} : {player.role} : {player.role_color}")
+    # for player in guild.teams[team_y]:
+    #     print(f"{player.name} : {player.role} : {player.role_color}")
 
+    # order by descending values.
     datasets = [guild.get_main_spec_dataset(_teams[team]) for team in teams]
+    print(datasets)
+
+    color_sequence = []
+
+    for entry in datasets[0]:
+        for player in guild.teams[team_y]:
+            if entry[0] == player.name:
+                color_sequence.append(player.role_color)
+
+    print(color_sequence)
+
     charts = functools.reduce(
         operator.add,
         [
@@ -40,8 +52,8 @@ def main(teams: List[str]) -> None:
     )
 
     for chart in charts:
-        # chart.render()
-        chart.save_chart(sys.argv[1])
+        chart.render()
+        # chart.save_chart(sys.argv[1])
 
 
 teams = parse_args()
