@@ -37,19 +37,21 @@ def main(teams: List[str]) -> None:
     color_sequence = []
 
     for entry in datasets[0]:
-        for player in guild.teams[team_y]:
+        for player in guild.teams[_teams[sys.argv[1]]]:
             if entry[0] == player.name:
                 color_sequence.append(player.role_color)
 
     print(color_sequence)
 
-    charts = functools.reduce(
-        operator.add,
-        [
-            [constructor(dataset) for dataset in datasets]
-            for constructor in [plots.PieChart, plots.BarChart]
-        ]
-    )
+    # charts = functools.reduce(
+    #     operator.add,
+    #     [
+    #         [constructor(dataset) for dataset in datasets]
+    #         for constructor in [plots.PieChart, plots.BarChart]
+    #     ]
+    # )
+
+    charts = [plots.BarChart(datasets[0], color_sequence), plots.PieChart(datasets[0])]
 
     for chart in charts:
         chart.render()

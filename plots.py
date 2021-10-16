@@ -42,8 +42,9 @@ class PieChart(Chart):
 
 
 class BarChart(Chart):
-    def __init__(self, data: DataPoints):
+    def __init__(self, data: DataPoints, colors: List[str]):
         self.data = data
+        self.colors = colors
 
     def populate_chart(self) -> None:
         labels, values = self.normalise_dataset()
@@ -52,12 +53,14 @@ class BarChart(Chart):
 
         y_pos = np.arange(len(labels))
 
-        ax.barh(y_pos, values, align='center')
+        ax.barh(y_pos, values, align='center', color=self.colors)
         ax.set_yticks(y_pos)
         ax.set_yticklabels(labels)
         ax.invert_yaxis()  # labels read top-to-bottom
         ax.set_xlabel('Loot')
         ax.set_title('Loot Assignment Totals')
+        ax.set_facecolor('grey')
+        fig.patch.set_facecolor('grey')
 
     def render(self) -> None:
         self.populate_chart()
