@@ -15,10 +15,13 @@ class Chart:
         series: DataSeries = tuple([point[i] for point in self.data] for i in (0, 1))
         return series
 
+    def populate_chart(self) -> None:
+        raise NotImplementedError("Do not invoke the interface directly!")
+
     def render(self) -> None:
         raise NotImplementedError("Do not invoke the interface directly!")
 
-    def populate_chart(self) -> None:
+    def save_chart(self, team_name: str) -> None:
         raise NotImplementedError("Do not invoke the interface directly!")
 
 
@@ -28,7 +31,7 @@ class PieChart(Chart):
 
     def populate_chart(self) -> None:
         labels, values = self.normalise_dataset()
-        fig1, ax1 = plt.subplots()
+        fig1, ax1 = plt.subplots(tight_layout=True)
         ax1.pie(values, labels=labels, autopct='%1.1f%%', pctdistance=0.8)
         ax1.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
 
@@ -49,7 +52,7 @@ class BarChart(Chart):
     def populate_chart(self) -> None:
         labels, values = self.normalise_dataset()
         plt.rcdefaults()
-        fig, ax = plt.subplots()
+        fig, ax = plt.subplots(tight_layout=True)
 
         y_pos = np.arange(len(labels))
 
@@ -66,6 +69,28 @@ class BarChart(Chart):
         self.populate_chart()
         plt.show()
 
-    def save_chart(self, team_name) -> None:
+    def save_chart(self, team_name: str) -> None:
         self.populate_chart()
         plt.savefig(f"charts/{team_name}-loot-bars")
+
+
+class Histogram(Chart):
+    def __init__(self, data: DataPoints):
+        self.data = data
+
+    def populate_chart(self) -> None:
+        values = self.normalise_dataset()[1]
+        print(values)
+        fig, ax = plt.subplots()
+        ax.set_title("Loot Histogram")
+        ax.set_xlabel("Total Loot Awarded")
+        ax.set_ylabel("Raiders")
+        ax.hist(values, bins=9, align="mid")
+
+    def render(self) -> None:
+        self.populate_chart()
+        plt.show()
+
+    def save_chart(self, team_name: str) -> None:
+        self.populate_chart()
+        plt.savefig(f"charts/{team_name}-histogram")

@@ -51,7 +51,7 @@ def main(teams: List[str]) -> None:
     #     ]
     # )
 
-    charts = [plots.BarChart(datasets[0], color_sequence), plots.PieChart(datasets[0])]
+    charts = [plots.BarChart(datasets[0], color_sequence), plots.PieChart(datasets[0]), plots.Histogram(datasets[0])]
 
     for chart in charts:
         chart.render()
