@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import functools
 import itertools
+import operator
 from typing import Dict, List, Tuple
 from dataclasses import dataclass
 
@@ -157,9 +158,8 @@ class Ledger:
 
     def sequence_role_colors(self, dataset: DataSet, team_name: str) -> List[str]:
         color_sequence_elements = [[player.role_color for player in self.teams[team_name] if entry[0] == player.name] for entry in dataset]
-        color_sequence = list(itertools.chain.from_iterable(color_sequence_elements))
 
-        return color_sequence
+        return functools.reduce(operator.add, color_sequence_elements)
 
     @property
     def loot_allocation_all(self) -> Dict[str, int]:

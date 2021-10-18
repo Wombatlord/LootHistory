@@ -26,14 +26,16 @@ class Chart:
 
 
 class PieChart(Chart):
-    def __init__(self, data: DataPoints):
+    def __init__(self, data: DataPoints, colors: List[str]):
         self.data = data
+        self.colors = colors
 
     def populate_chart(self) -> None:
         labels, values = self.normalise_dataset()
-        fig1, ax1 = plt.subplots(tight_layout=True)
-        ax1.pie(values, labels=labels, autopct='%1.1f%%', pctdistance=0.8)
-        ax1.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
+        fig, ax = plt.subplots(tight_layout=True)
+        ax.pie(values, labels=labels, autopct='%1.1f%%', pctdistance=0.8, colors=self.colors)
+        ax.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
+        fig.patch.set_facecolor('grey')
 
     def render(self) -> None:
         self.populate_chart()
@@ -81,10 +83,11 @@ class Histogram(Chart):
     def populate_chart(self) -> None:
         values = self.normalise_dataset()[1]
         fig, ax = plt.subplots()
+        n_bins = max(values) + 1
         ax.set_title("Loot Histogram")
         ax.set_xlabel("Total Loot Awarded")
         ax.set_ylabel("Raiders")
-        ax.hist(values, bins=9, align="mid")
+        ax.hist(values, bins=n_bins, align="mid")
 
     def render(self) -> None:
         self.populate_chart()
