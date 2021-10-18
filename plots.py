@@ -60,7 +60,7 @@ class BarChart(Chart):
         ax.set_yticks(y_pos)
         ax.set_yticklabels(labels)
         ax.invert_yaxis()  # labels read top-to-bottom
-        ax.set_xlabel('Loot')
+        ax.set_xlabel('Mainspec BIS / Upgrade pieces awarded')
         ax.set_title('Loot Assignment Totals')
         ax.set_facecolor('grey')
         fig.patch.set_facecolor('grey')
@@ -80,7 +80,6 @@ class Histogram(Chart):
 
     def populate_chart(self) -> None:
         values = self.normalise_dataset()[1]
-        print(values)
         fig, ax = plt.subplots()
         ax.set_title("Loot Histogram")
         ax.set_xlabel("Total Loot Awarded")

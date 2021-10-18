@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 import functools
-from typing import Dict, List, Any, Tuple
+import itertools
+from typing import Dict, List, Tuple
 from dataclasses import dataclass
 
 DataSet = List[Tuple[str, int]]
@@ -120,7 +121,6 @@ class HistoryData:
 
 
 class Ledger:
-    loot_mapping: Dict[str, int]
     role_colors = {"Warrior": "brown",
                    "Rogue": "yellow",
                    "Hunter": "green",
@@ -131,8 +131,6 @@ class Ledger:
                    "Paladin": "pink",
                    "Shaman": "blue",
                    }
-
-    color_sequence: List[str] = []
 
     def __init__(self, history: List[dict]) -> None:
         self.history: HistoryData = HistoryData.parse(history)
@@ -156,6 +154,12 @@ class Ledger:
         for player in self.history.players:
             if player.role in self.role_colors:
                 player.role_color = self.role_colors[player.role]
+
+    def sequence_role_colors(self, dataset: DataSet, team_name: str) -> List[str]:
+        color_sequence_elements = [[player.role_color for player in self.teams[team_name] if entry[0] == player.name] for entry in dataset]
+        color_sequence = list(itertools.chain.from_iterable(color_sequence_elements))
+
+        return color_sequence
 
     @property
     def loot_allocation_all(self) -> Dict[str, int]:

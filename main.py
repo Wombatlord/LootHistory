@@ -26,30 +26,9 @@ def main(teams: List[str]) -> None:
 
     guild = Ledger(history)
 
-    # sanity checking color assignment to players
-    # for player in guild.teams[team_y]:
-    #     print(f"{player.name} : {player.role} : {player.role_color}")
-
     # order by descending values.
     datasets = [guild.get_main_spec_dataset(_teams[team]) for team in teams]
-    print(datasets)
-
-    color_sequence = []
-
-    for entry in datasets[0]:
-        for player in guild.teams[_teams[sys.argv[1]]]:
-            if entry[0] == player.name:
-                color_sequence.append(player.role_color)
-
-    print(color_sequence)
-
-    # charts = functools.reduce(
-    #     operator.add,
-    #     [
-    #         [constructor(dataset) for dataset in datasets]
-    #         for constructor in [plots.PieChart, plots.BarChart]
-    #     ]
-    # )
+    color_sequence = guild.sequence_role_colors(datasets[0], _teams[sys.argv[1]])
 
     charts = [plots.BarChart(datasets[0], color_sequence), plots.PieChart(datasets[0]), plots.Histogram(datasets[0])]
 
@@ -58,5 +37,13 @@ def main(teams: List[str]) -> None:
         # chart.save_chart(sys.argv[1])
 
 
-teams = parse_args()
-main(teams)
+chosen_team = parse_args()
+main(chosen_team)
+
+# charts = functools.reduce(
+#     operator.add,
+#     [
+#         [constructor(dataset) for dataset in datasets]
+#         for constructor in [plots.PieChart, plots.BarChart]
+#     ]
+# )
