@@ -1,4 +1,4 @@
-from typing import List, Tuple
+from typing import List, Tuple, Dict
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -10,6 +10,11 @@ DataSeries = Tuple[List[str], List[int]]
 # noinspection PyTypeChecker
 class Chart:
     data: DataPoints
+    chart_colors: Dict[str, str] = {"goldenrod": "xkcd:goldenrod",
+                                    "ocean": "xkcd:ocean",
+                                    "almost_black": "xkcd:almost black"}
+
+    font: str = "Inconsolata NF"
 
     def normalise_dataset(self) -> DataSeries:
         series: DataSeries = tuple([point[i] for point in self.data] for i in (0, 1))
@@ -24,24 +29,43 @@ class Chart:
     def save_chart(self, team_name: str) -> None:
         raise NotImplementedError("Do not invoke the interface directly!")
 
+    def apply_style(self, text_color, label_color, edge_color, title_color, font) -> None:
+        plt.rcdefaults()
+        plt.rcParams.update({'text.color': text_color,
+                             'axes.labelcolor': label_color,
+                             'axes.edgecolor': edge_color,
+                             'axes.titlecolor': title_color,
+                             'font.family': font})
+
+    def apply_bar_style(self, figure, axes, title, xlabel, tick_colors, face_color) -> None:
+        axes.set_title(title)
+        axes.set_xlabel(xlabel)
+        axes.tick_params(axis='y', colors=tick_colors)
+        axes.tick_params(axis='x', colors=tick_colors)
+        axes.invert_yaxis()  # labels read top-to-bottom
+        axes.set_facecolor(face_color)
+        figure.patch.set_facecolor(face_color)
+        pass
+
 
 class PieChart(Chart):
-    def __init__(self, data: DataPoints, colors: List[str]):
+    def __init__(self, data: DataPoints, role_colors: List[str]):
         self.data = data
-        self.colors = colors
+        self.role_colors = role_colors
 
     def populate_chart(self) -> None:
         labels, values = self.normalise_dataset()
-        plt.rcdefaults()
-        plt.rcParams.update({'text.color': "xkcd:ocean",
-                             'axes.labelcolor': "xkcd:goldenrod",
-                             'axes.edgecolor': "xkcd:goldenrod",
-                             'font.family': "monospace"})
+        self.apply_style(self.chart_colors["ocean"],
+                         self.chart_colors["goldenrod"],
+                         self.chart_colors["goldenrod"],
+                         self.chart_colors["goldenrod"],
+                         self.font)
 
         fig, ax = plt.subplots(tight_layout=True)
-        ax.pie(values, labels=labels, autopct='%1.1f%%', pctdistance=0.8, colors=self.colors)
+        fig.suptitle("Mainspec Loot Share", color=self.chart_colors["goldenrod"])
+        ax.pie(values, labels=labels, autopct='%1.1f%%', pctdistance=0.8, colors=self.role_colors)
         ax.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
-        fig.patch.set_facecolor('xkcd:almost black')
+        fig.patch.set_facecolor(self.chart_colors["almost_black"])
 
     def render(self) -> None:
         self.populate_chart()
@@ -53,32 +77,31 @@ class PieChart(Chart):
 
 
 class BarChart(Chart):
-    def __init__(self, data: DataPoints, colors: List[str]):
+    def __init__(self, data: DataPoints, role_colors: List[str]):
         self.data = data
-        self.colors = colors
+        self.role_colors = role_colors
 
     def populate_chart(self) -> None:
         labels, values = self.normalise_dataset()
-        plt.rcdefaults()
-        plt.rcParams.update({'text.color': "xkcd:goldenrod",
-                             'axes.labelcolor': "xkcd:goldenrod",
-                             'axes.edgecolor': "xkcd:goldenrod",
-                             'font.family': "monospace"
-                             })
+        self.apply_style(self.chart_colors["goldenrod"],
+                         self.chart_colors["goldenrod"],
+                         self.chart_colors["ocean"],
+                         self.chart_colors["goldenrod"],
+                         self.font)
 
         fig, ax = plt.subplots(tight_layout=True)
         y_pos = np.arange(len(labels))
 
-        ax.barh(y_pos, values, align='center', color=self.colors)
         ax.set_yticks(y_pos)
         ax.set_yticklabels(labels)
-        ax.tick_params(axis='y', colors='xkcd:goldenrod')
-        ax.tick_params(axis='x', colors='xkcd:goldenrod')
-        ax.invert_yaxis()  # labels read top-to-bottom
-        ax.set_xlabel('Mainspec BIS / Upgrade pieces awarded')
-        ax.set_title('Fusion: Team Y Loot Assignment Totals')
-        ax.set_facecolor('xkcd:almost black')
-        fig.patch.set_facecolor('xkcd:almost black')
+        ax.barh(y_pos, values, align='center', color=self.role_colors)
+
+        self.apply_bar_style(figure=fig,
+                             axes=ax,
+                             title="Fusion: Team Y Loot Assignment Totals",
+                             xlabel="Mainspec BIS / Upgrade pieces awarded",
+                             tick_colors=self.chart_colors["goldenrod"],
+                             face_color=self.chart_colors["almost_black"])
 
     def render(self) -> None:
         self.populate_chart()
@@ -90,37 +113,36 @@ class BarChart(Chart):
 
 
 class CombinedPieBar(Chart):
-    def __init__(self, data: DataPoints, colors: List[str]):
+    def __init__(self, data: DataPoints, role_colors: List[str]):
         self.data = data
-        self.colors = colors
+        self.role_colors = role_colors
 
     def populate_chart(self) -> None:
         labels, values = self.normalise_dataset()
-        plt.rcdefaults()
-        plt.rcParams.update({'text.color': "xkcd:ocean",
-                             'axes.labelcolor': "xkcd:goldenrod",
-                             'axes.edgecolor': "xkcd:ocean",
-                             'axes.titlecolor': "xkcd:goldenrod",
-                             'font.family': "monospace"
-                             })
-
-        px = 1 / plt.rcParams['figure.dpi']
-        fig, (bar, pie) = plt.subplots(1, 2, tight_layout=True, figsize=(1600*px, 800*px))
-        fig.suptitle("Fusion: Team Y Mainspec Loot Share", color="xkcd:goldenrod")
-        fig.patch.set_facecolor('xkcd:almost black')
-
         y_pos = np.arange(len(labels))
-        bar.barh(y_pos, values, align='center', color=self.colors)
+        px = 1 / plt.rcParams['figure.dpi']
+
+        self.apply_style(self.chart_colors["ocean"],
+                         self.chart_colors["goldenrod"],
+                         self.chart_colors["ocean"],
+                         self.chart_colors["goldenrod"],
+                         self.font)
+
+        fig, (bar, pie) = plt.subplots(1, 2, tight_layout=True, figsize=(1600 * px, 800 * px))
+        fig.suptitle("Fusion: Team Y Mainspec Loot Share", color=self.chart_colors["goldenrod"])
+
+        bar.barh(y_pos, values, align='center', color=self.role_colors)
         bar.set_yticks(y_pos)
         bar.set_yticklabels(labels)
-        bar.invert_yaxis()  # labels read top-to-bottom
-        bar.set_title('Loot Assignment Totals')
-        bar.set_xlabel('Mainspec BIS / Upgrade pieces awarded')
-        bar.set_facecolor('xkcd:almost black')
-        bar.tick_params(axis='y', colors='xkcd:goldenrod')
-        bar.tick_params(axis='x', colors='xkcd:goldenrod')
 
-        pie.pie(values, labels=labels, autopct='%1.1f%%', pctdistance=0.8, colors=self.colors)
+        self.apply_bar_style(figure=fig,
+                             axes=bar,
+                             title="Loot Assignment Totals",
+                             xlabel="Mainspec BIS / Upgrade pieces awarded",
+                             tick_colors=self.chart_colors["goldenrod"],
+                             face_color=self.chart_colors["almost_black"])
+
+        pie.pie(values, labels=labels, autopct='%1.1f%%', pctdistance=0.8, colors=self.role_colors)
         pie.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
 
     def render(self) -> None:
@@ -140,20 +162,20 @@ class Histogram(Chart):
         values = self.normalise_dataset()[1]
         n_bins = max(values) + 1
 
-        plt.rcdefaults()
-        plt.rcParams.update({'text.color': "xkcd:goldenrod",
-                             'axes.labelcolor': "xkcd:goldenrod",
-                             'axes.edgecolor': "xkcd:goldenrod",
-                             'font.family': "monospace"
-                             })
+        self.apply_style(self.chart_colors["goldenrod"],
+                         self.chart_colors["goldenrod"],
+                         self.chart_colors["goldenrod"],
+                         self.chart_colors["goldenrod"],
+                         self.font)
+
         fig, ax = plt.subplots()
 
         ax.set_xlabel("Total Loot Awarded")
         ax.set_ylabel("Raiders")
-        ax.tick_params(axis='y', colors='xkcd:goldenrod')
-        ax.tick_params(axis='x', colors='xkcd:goldenrod')
-        ax.set_facecolor('xkcd:almost black')
-        fig.patch.set_facecolor('xkcd:almost black')
+        ax.tick_params(axis='y', colors=self.chart_colors["goldenrod"])
+        ax.tick_params(axis='x', colors=self.chart_colors["goldenrod"])
+        ax.set_facecolor(self.chart_colors["almost_black"])
+        fig.patch.set_facecolor(self.chart_colors["almost_black"])
         ax.set_title("Loot Histogram")
         ax.hist(values, bins=n_bins, align="mid")
 
