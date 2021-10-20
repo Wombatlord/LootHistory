@@ -14,7 +14,9 @@ class Chart:
                                     "ocean": "xkcd:ocean",
                                     "almost_black": "xkcd:almost black"}
 
-    font: str = "Inconsolata NF"
+    fonts: Dict[str, str] = {"monospace": "monospace",
+                             "roboto": "Roboto Mono Medium for Powerline",
+                             "inconsolata": "Inconsolata NF"}
 
     def normalise_dataset(self) -> DataSeries:
         series: DataSeries = tuple([point[i] for point in self.data] for i in (0, 1))
@@ -35,7 +37,8 @@ class Chart:
                              'axes.labelcolor': label_color,
                              'axes.edgecolor': edge_color,
                              'axes.titlecolor': title_color,
-                             'font.family': font})
+                             'font.family': font,
+                             'font.size': 12})
 
     def apply_bar_style(self, figure, axes, title, xlabel, tick_colors, face_color) -> None:
         axes.set_title(title)
@@ -59,7 +62,7 @@ class PieChart(Chart):
                          self.chart_colors["goldenrod"],
                          self.chart_colors["goldenrod"],
                          self.chart_colors["goldenrod"],
-                         self.font)
+                         self.fonts["inconsolata"])
 
         fig, ax = plt.subplots(tight_layout=True)
         fig.suptitle("Mainspec Loot Share", color=self.chart_colors["goldenrod"])
@@ -87,7 +90,7 @@ class BarChart(Chart):
                          self.chart_colors["goldenrod"],
                          self.chart_colors["ocean"],
                          self.chart_colors["goldenrod"],
-                         self.font)
+                         self.fonts["inconsolata"])
 
         fig, ax = plt.subplots(tight_layout=True)
         y_pos = np.arange(len(labels))
@@ -126,7 +129,7 @@ class CombinedPieBar(Chart):
                          self.chart_colors["goldenrod"],
                          self.chart_colors["ocean"],
                          self.chart_colors["goldenrod"],
-                         self.font)
+                         self.fonts["inconsolata"])
 
         fig, (bar, pie) = plt.subplots(1, 2, tight_layout=True, figsize=(1600 * px, 800 * px))
         fig.suptitle("Fusion: Team Y Mainspec Loot Share", color=self.chart_colors["goldenrod"])
@@ -166,7 +169,7 @@ class Histogram(Chart):
                          self.chart_colors["goldenrod"],
                          self.chart_colors["goldenrod"],
                          self.chart_colors["goldenrod"],
-                         self.font)
+                         self.fonts["inconsolata"])
 
         fig, ax = plt.subplots()
 
