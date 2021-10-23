@@ -116,9 +116,10 @@ class BarChart(Chart):
 
 
 class CombinedPieBar(Chart):
-    def __init__(self, data: DataPoints, role_colors: List[str]):
+    def __init__(self, data: DataPoints, role_colors: List[str], main_title: str):
         self.data = data
         self.role_colors = role_colors
+        self.main_title = main_title
 
     def populate_chart(self) -> None:
         labels, values = self.normalise_dataset()
@@ -132,7 +133,7 @@ class CombinedPieBar(Chart):
                          self.fonts["inconsolata"])
 
         fig, (bar, pie) = plt.subplots(1, 2, tight_layout=True, figsize=(1600 * px, 800 * px))
-        fig.suptitle("Fusion: Team Y Mainspec Loot Share", color=self.chart_colors["goldenrod"])
+        fig.suptitle(f"Fusion: Team {self.main_title} Mainspec Loot Share", color=self.chart_colors["goldenrod"])
 
         bar.barh(y_pos, values, align='center', color=self.role_colors)
         bar.set_yticks(y_pos)

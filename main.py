@@ -21,7 +21,7 @@ def parse_args() -> List[str]:
 
 
 def main(teams: List[str]) -> None:
-    with open("fusion-history.json") as fusion_history:
+    with open("history/character-json.json") as fusion_history:
         history = json.load(fusion_history)
 
     guild = Ledger(history)
@@ -33,13 +33,13 @@ def main(teams: List[str]) -> None:
     bar = plots.BarChart(datasets[0], color_sequence)
     pie = plots.PieChart(datasets[0], color_sequence)
     histogram = plots.Histogram(datasets[0])
-    bar_and_pie = plots.CombinedPieBar(datasets[0], color_sequence)
+    bar_and_pie = plots.CombinedPieBar(datasets[0], color_sequence, sys.argv[1])
 
     charts = [bar_and_pie]
 
     for chart in charts:
-        chart.render()
-        # chart.save_chart(sys.argv[1])
+        # chart.render()
+        chart.save_chart(sys.argv[1])
 
 
 chosen_team = parse_args()
