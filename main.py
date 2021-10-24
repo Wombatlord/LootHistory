@@ -38,8 +38,8 @@ def main(teams: List[str]) -> None:
     prep_charts_dir()
 
     for chart in charts:
-        # chart.render()
-        chart.save_chart()
+        chart.render()
+        # chart.save_chart()
 
 
 def construct_chart_list(guild, teams) -> List[plots.Chart]:
