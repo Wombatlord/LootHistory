@@ -1,11 +1,11 @@
 #! /usr/bin/env python3
-import functools
 import json
-import operator
 import sys
+from pathlib import Path
 from typing import List
 
 import plots
+from config import Config
 from ledger import Ledger
 
 team_x = "Team X - Rainbow"
@@ -20,9 +20,13 @@ def parse_args() -> List[str]:
     return [*({*args} & team_flags)]
 
 
+def date_filter_prompt():
+    supplied_date = input("Please enter a date: MMDD\n")
+    Config.date_filter = f"2021{supplied_date}"
+
+
 def main(teams: List[str]) -> None:
-    with open("history/character-json.json") as fusion_history:
-        history = json.load(fusion_history)
+    history = get_history()
 
     guild = Ledger(history)
 
@@ -37,12 +41,25 @@ def main(teams: List[str]) -> None:
 
     charts = [bar_and_pie]
 
+    prep_charts_dir()
+
     for chart in charts:
         # chart.render()
         chart.save_chart(sys.argv[1])
 
 
+def prep_charts_dir():
+    Path(Config.charts_dir).mkdir(parents=True, exist_ok=True)
+
+
+def get_history():
+    with open("history/character-json.json") as fusion_history:
+        history = json.load(fusion_history)
+    return history
+
+
 chosen_team = parse_args()
+date_filter_prompt()
 main(chosen_team)
 
 # charts = functools.reduce(

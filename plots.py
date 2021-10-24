@@ -3,6 +3,8 @@ from typing import List, Tuple, Dict
 import matplotlib.pyplot as plt
 import numpy as np
 
+from config import Config
+
 DataPoints = List[Tuple[str, int]]
 DataSeries = Tuple[List[str], List[int]]
 
@@ -76,7 +78,7 @@ class PieChart(Chart):
 
     def save_chart(self, team_name: str):
         self.populate_chart()
-        plt.savefig(f"charts/{team_name}-loot-pie.png")
+        plt.savefig(f"{Config.charts_dir}/{team_name}-loot-pie.png")
 
 
 class BarChart(Chart):
@@ -112,7 +114,7 @@ class BarChart(Chart):
 
     def save_chart(self, team_name: str) -> None:
         self.populate_chart()
-        plt.savefig(f"charts/{team_name}-loot-bars")
+        plt.savefig(f"{Config.charts_dir}/{team_name}-loot-bars")
 
 
 class CombinedPieBar(Chart):
@@ -155,7 +157,7 @@ class CombinedPieBar(Chart):
 
     def save_chart(self, team_name: str) -> None:
         self.populate_chart()
-        plt.savefig(f"charts/{team_name}-bar-and-pie")
+        plt.savefig(f"{Config.charts_dir}/{team_name}-bar-and-pie")
 
 
 class Histogram(Chart):
@@ -189,4 +191,4 @@ class Histogram(Chart):
 
     def save_chart(self, team_name: str) -> None:
         self.populate_chart()
-        plt.savefig(f"charts/{team_name}-histogram")
+        plt.savefig(f"{Config.charts_dir}/{team_name}-histogram")

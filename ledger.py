@@ -1,18 +1,14 @@
 from __future__ import annotations
 
 import functools
-import itertools
 import operator
 from typing import Dict, List, Tuple
 from dataclasses import dataclass
 
+from config import Config
+
 DataSet = List[Tuple[str, int]]
 
-"""
-date_filter is a user supplied month and date used to filter data based on item received dates.
-format: 0915 (MMDD)
-"""
-date_filter: str = ""
 
 @dataclass
 class ReceivedItem:
@@ -113,10 +109,9 @@ class Player:
 
     @property
     def main_spec_received(self) -> List[ReceivedItem]:
-        global date_filter
         return [
             item for item in self.received
-            if not item.is_excluded and item.received_after(date_filter)
+            if not item.is_excluded and item.received_after(Config.date_filter)
         ]
 
 
@@ -158,13 +153,6 @@ class Ledger:
         self.teams = {}
         self.assign_role_colors()
         self.split_teams()
-        self.set_date_filter()
-
-    def set_date_filter(self):
-        global date_filter
-        supplied_date = input("Please enter a date: MMDD\n")
-        date_filter = f"2021{supplied_date}"
-        print(date_filter)
 
     def split_teams(self) -> None:
         team_names = {player.raid_group_name for player in self.history.players}
