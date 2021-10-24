@@ -15,6 +15,7 @@ class ReceivedItem:
     item_name: str
     is_offspec: bool
     officer_note: str
+    instance_id: int
     raw_data: dict
 
     @classmethod
@@ -24,6 +25,7 @@ class ReceivedItem:
             "item_name": data["name"],
             "is_offspec": data["pivot"]["is_offspec"],
             "officer_note": data["pivot"]["officer_note"] or "",
+            "instance_id": data["instance_id"],
             "raw_data": data
         }
         return cls(**kwargs)
@@ -63,6 +65,11 @@ class ReceivedItem:
 
         return any(exclusion in self.officer_note for exclusion in exclusions)
 
+    @property
+    def from_instance(self) -> bool:
+        instances: List[int] = [10]
+        return any(instance is self.instance_id for instance in instances)
+
 
 @dataclass
 class Player:
@@ -92,7 +99,7 @@ class Player:
     def main_spec_received(self) -> List[ReceivedItem]:
         return [
             item for item in self.received
-            if not item.is_excluded
+            if not item.is_excluded and item.from_instance()
         ]
 
 

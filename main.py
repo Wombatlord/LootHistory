@@ -38,8 +38,8 @@ def main(teams: List[str]) -> None:
     charts = [bar_and_pie]
 
     for chart in charts:
-        # chart.render()
-        chart.save_chart(sys.argv[1])
+        chart.render()
+        # chart.save_chart(sys.argv[1])
 
 
 chosen_team = parse_args()
