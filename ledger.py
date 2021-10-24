@@ -72,17 +72,13 @@ class ReceivedItem:
         instances: List[int] = [10, 11, 12, 14]
         return any(instance is self.instance_id for instance in instances)
 
-    def received_after(self, date: str) -> bool:
+    def received_after(self, date_filter: str) -> bool:
         if self.received_at:
-            reduced_received_at_full = self.received_at.split(" ")
-            reduced_received_at = reduced_received_at_full[0].split("-")
-            final_recieved_date = functools.reduce(operator.add, reduced_received_at)
+            date_time_split = self.received_at.split(" ")
+            year_month_day = date_time_split[0].split("-")
+            item_received_date = functools.reduce(operator.add, year_month_day)
 
-            date_and_time_filter = date.split(" ")
-            date_elements = date_and_time_filter[0].split("-")
-            final_user_date = functools.reduce(operator.add, date_elements)
-
-            if final_user_date < final_recieved_date:
+            if date_filter < item_received_date:
                 return True
 
 @dataclass
