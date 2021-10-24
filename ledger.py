@@ -15,6 +15,7 @@ class ReceivedItem:
     item_name: str
     is_offspec: bool
     officer_note: str
+    received_at: str
     instance_id: int
     raw_data: dict
 
@@ -25,6 +26,7 @@ class ReceivedItem:
             "item_name": data["name"],
             "is_offspec": data["pivot"]["is_offspec"],
             "officer_note": data["pivot"]["officer_note"] or "",
+            "received_at": data["pivot"]["received_at"],
             "instance_id": data["instance_id"],
             "raw_data": data
         }
@@ -67,9 +69,21 @@ class ReceivedItem:
 
     @property
     def from_instance(self) -> bool:
-        instances: List[int] = [10]
+        instances: List[int] = [10, 11, 12, 14]
         return any(instance is self.instance_id for instance in instances)
 
+    def received_after(self, date: str) -> bool:
+        if self.received_at:
+            reduced_received_at_full = self.received_at.split(" ")
+            reduced_received_at = reduced_received_at_full[0].split("-")
+            final_recieved_date = functools.reduce(operator.add, reduced_received_at)
+
+            date_and_time_filter = date.split(" ")
+            date_elements = date_and_time_filter[0].split("-")
+            final_user_date = functools.reduce(operator.add, date_elements)
+
+            if final_user_date < final_recieved_date:
+                return True
 
 @dataclass
 class Player:
@@ -99,7 +113,7 @@ class Player:
     def main_spec_received(self) -> List[ReceivedItem]:
         return [
             item for item in self.received
-            if not item.is_excluded and item.from_instance()
+            if not item.is_excluded and item.received_after("20210915")
         ]
 
 
