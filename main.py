@@ -49,6 +49,9 @@ def main(teams: List[str]) -> None:
 
 
 def prep_charts_dir():
+    """
+    Sets up charts dir if it doesn't exist yet (if you change the default config)
+    """
     Path(Config.charts_dir).mkdir(parents=True, exist_ok=True)
 
 
