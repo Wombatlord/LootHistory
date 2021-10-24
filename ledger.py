@@ -59,12 +59,14 @@ class ReceivedItem:
 
     @property
     def is_excluded(self) -> bool:
-        exclusions = ["Banking",
-                      "PvP",
-                      "OS",
-                      "OSPvP",
-                      "Pass",
-                      "Other"]
+        exclusions = [
+            "Banking",
+            "PvP",
+            "OS",
+            "OSPvP",
+            "Pass",
+            "Other"
+        ]
 
         return any(exclusion in self.officer_note for exclusion in exclusions)
 
@@ -94,12 +96,14 @@ class Player:
 
     @classmethod
     def parse(cls, data: dict) -> Player:
-        kwargs = {"raw_data": data,
-                  "name": data["name"],
-                  "id": data["id"],
-                  "raid_group_name": data["raid_group_name"],
-                  "role": data["class"],
-                  "role_color": None}
+        kwargs = {
+            "raw_data": data,
+            "name": data["name"],
+            "id": data["id"],
+            "raid_group_name": data["raid_group_name"],
+            "role": data["class"],
+            "role_color": None
+        }
 
         return cls(**kwargs)
 
@@ -137,16 +141,17 @@ class HistoryData:
 
 
 class Ledger:
-    role_colors = {"Warrior": "xkcd:chocolate",
-                   "Rogue": "xkcd:goldenrod",
-                   "Hunter": "xkcd:hunter green",
-                   "Mage": "xkcd:cyan",
-                   "Warlock": "xkcd:indigo",
-                   "Priest": "white",
-                   "Druid": "xkcd:dusty orange",
-                   "Paladin": "pink",
-                   "Shaman": "xkcd:royal blue",
-                   }
+    role_colors = {
+        "Warrior": "xkcd:chocolate",
+        "Rogue": "xkcd:goldenrod",
+        "Hunter": "xkcd:hunter green",
+        "Mage": "xkcd:cyan",
+        "Warlock": "xkcd:indigo",
+        "Priest": "white",
+        "Druid": "xkcd:dusty orange",
+        "Paladin": "pink",
+        "Shaman": "xkcd:royal blue",
+    }
 
     def __init__(self, history: List[dict]) -> None:
         self.history: HistoryData = HistoryData.parse(history)
@@ -172,7 +177,13 @@ class Ledger:
                 player.role_color = self.role_colors[player.role]
 
     def sequence_role_colors(self, dataset: DataSet, team_name: str) -> List[str]:
-        return functools.reduce(operator.add, [[player.role_color for player in self.teams[team_name] if entry[0] == player.name] for entry in dataset])
+        return functools.reduce(
+            operator.add,
+            [
+                [player.role_color for player in self.teams[team_name] if entry[0] == player.name]
+                for entry in dataset
+            ]
+        )
 
     @property
     def loot_allocation_all(self) -> Dict[str, int]:

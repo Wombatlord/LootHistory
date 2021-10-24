@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Set
 
 
 class Config:
@@ -16,3 +16,22 @@ class Config:
     """
     Destination dir for generation of charts
     """
+
+    history_dir: str = "./history"
+    """
+    Source dir for raw data to be visualised
+    """
+
+    output_charts = ("bar", "pie", "hist", "combined")
+    """
+    Available chart types
+    """
+
+    excluded_charts = ("bar", "pie", "hist")
+    """
+    Add charts to this tuple to exclude them from being generated
+    """
+
+    @classmethod
+    def get_charts_to_render(cls) -> Set[str]:
+        return {*cls.output_charts} - {*cls.excluded_charts}
