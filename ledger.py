@@ -8,6 +8,11 @@ from dataclasses import dataclass
 
 DataSet = List[Tuple[str, int]]
 
+"""
+date_filter is a user supplied month and date used to filter data based on item received dates.
+format: 0915 (MMDD)
+"""
+date_filter: str = ""
 
 @dataclass
 class ReceivedItem:
@@ -72,14 +77,15 @@ class ReceivedItem:
         instances: List[int] = [10, 11, 12, 14]
         return any(instance is self.instance_id for instance in instances)
 
-    def received_after(self, date_filter: str) -> bool:
+    def received_after(self, date: str) -> bool:
         if self.received_at:
             date_time_split = self.received_at.split(" ")
             year_month_day = date_time_split[0].split("-")
             item_received_date = functools.reduce(operator.add, year_month_day)
 
-            if date_filter < item_received_date:
+            if date < item_received_date:
                 return True
+
 
 @dataclass
 class Player:
@@ -107,9 +113,10 @@ class Player:
 
     @property
     def main_spec_received(self) -> List[ReceivedItem]:
+        global date_filter
         return [
             item for item in self.received
-            if not item.is_excluded and item.received_after("20210915")
+            if not item.is_excluded and item.received_after(date_filter)
         ]
 
 
@@ -151,6 +158,13 @@ class Ledger:
         self.teams = {}
         self.assign_role_colors()
         self.split_teams()
+        self.set_date_filter()
+
+    def set_date_filter(self):
+        global date_filter
+        supplied_date = input("Please enter a date: MMDD\n")
+        date_filter = f"2021{supplied_date}"
+        print(date_filter)
 
     def split_teams(self) -> None:
         team_names = {player.raid_group_name for player in self.history.players}
