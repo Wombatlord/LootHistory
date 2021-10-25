@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from config import Config
+from styles import choose_style
 
 DataPoints = List[Tuple[str, int]]
 DataSeries = Tuple[List[str], List[int]]
@@ -174,13 +175,7 @@ class CombinedPieBar(Chart):
         y_pos = np.arange(len(labels))
         px = 1 / plt.rcParams['figure.dpi']
 
-        self.apply_style(
-            self.chart_colors["ocean"],
-            self.chart_colors["goldenrod"],
-            self.chart_colors["ocean"],
-            self.chart_colors["goldenrod"],
-            self.fonts["inconsolata"]
-        )
+        self.apply_style(*choose_style("default"))
 
         fig, (bar, pie) = plt.subplots(1, 2, tight_layout=True, figsize=(1600 * px, 800 * px))
         fig.suptitle(f"Fusion: Team {self.team_id} Mainspec Loot Share", color=self.chart_colors["goldenrod"])
