@@ -32,6 +32,12 @@ class Config:
     Add charts to this tuple to exclude them from being generated
     """
 
+    excluded_officer_note = ("Banking", "PvP", "OS", "OSPvP", "Pass", "Other")
+    """
+    Add any term in the "officer_note" field of received items that is not associated to a mainspec upgrade.
+    ie. terms associated to any gear you do not wish to include in a chart.
+    """
+
     @classmethod
     def get_charts_to_render(cls) -> Set[str]:
         return {*cls.output_charts} - {*cls.excluded_charts}

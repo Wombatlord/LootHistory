@@ -59,20 +59,13 @@ class ReceivedItem:
 
     @property
     def is_excluded(self) -> bool:
-        exclusions = [
-            "Banking",
-            "PvP",
-            "OS",
-            "OSPvP",
-            "Pass",
-            "Other"
-        ]
+        exclusions = Config.excluded_officer_note
 
         return any(exclusion in self.officer_note for exclusion in exclusions)
 
     @property
     def from_instance(self) -> bool:
-        instances: List[int] = [10, 11, 12, 14]
+        instances: List[int] = [10, 11]
         return any(instance is self.instance_id for instance in instances)
 
     def received_after(self, date: str) -> bool:
@@ -81,7 +74,7 @@ class ReceivedItem:
             year_month_day = date_time_split[0].split("-")
             item_received_date = functools.reduce(operator.add, year_month_day)
 
-            if date < item_received_date:
+            if date <= item_received_date:
                 return True
 
 
@@ -115,7 +108,7 @@ class Player:
     def main_spec_received(self) -> List[ReceivedItem]:
         return [
             item for item in self.received
-            if not item.is_excluded and item.received_after(Config.date_filter)
+            if not item.is_excluded and item.received_after(Config.date_filter) and not item.from_instance
         ]
 
 
