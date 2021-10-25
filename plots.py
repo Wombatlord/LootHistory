@@ -123,6 +123,7 @@ class PieChart(Chart):
         self.populate_chart()
         plt.savefig(f"{Config.charts_dir}/{self.team_id}-loot-pie.png")
 
+
 class BarChart(Chart):
     def __init__(self, data: DataPoints, role_colors: List[str]):
         self.data = data
@@ -164,10 +165,9 @@ class BarChart(Chart):
 
 
 class CombinedPieBar(Chart):
-    def __init__(self, data: DataPoints, role_colors: List[str], main_title: str):
+    def __init__(self, data: DataPoints, role_colors: List[str]):
         self.data = data
         self.role_colors = role_colors
-        self.main_title = main_title
 
     def populate_chart(self) -> None:
         labels, values = self.normalise_dataset()
@@ -183,7 +183,7 @@ class CombinedPieBar(Chart):
         )
 
         fig, (bar, pie) = plt.subplots(1, 2, tight_layout=True, figsize=(1600 * px, 800 * px))
-        fig.suptitle(f"Fusion: Team {self.main_title} Mainspec Loot Share", color=self.chart_colors["goldenrod"])
+        fig.suptitle(f"Fusion: Team {self.team_id} Mainspec Loot Share", color=self.chart_colors["goldenrod"])
 
         bar.barh(y_pos, values, align='center', color=self.role_colors)
         bar.set_yticks(y_pos)

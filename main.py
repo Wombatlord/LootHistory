@@ -28,20 +28,6 @@ def date_filter_prompt():
     Config.date_filter = f"2021{supplied_date}"
 
 
-def main(teams: List[str]) -> None:
-    history = get_history()
-
-    guild = Ledger(history)
-
-    charts = construct_chart_list(guild, teams)
-
-    prep_charts_dir()
-
-    for chart in charts:
-        chart.render()
-        # chart.save_chart()
-
-
 def construct_chart_list(guild, teams) -> List[plots.Chart]:
     """
     For the list of teams supplied, a list of charts to be saved is returned
@@ -60,7 +46,7 @@ def select_charts(color_sequence: List[str], dataset: DataSet, team_id: str) -> 
         "bar": plots.BarChart(dataset, color_sequence),
         "pie": plots.PieChart(dataset, color_sequence),
         "hist": plots.Histogram(dataset),
-        "combined": plots.CombinedPieBar(dataset, color_sequence, sys.argv[1])
+        "combined": plots.CombinedPieBar(dataset, color_sequence)
     }
     charts = [charts[chart_name] for chart_name in Config.get_charts_to_render()]
     for chart in charts:
@@ -79,6 +65,20 @@ def get_history() -> List[dict]:
     with open(f"{Config.history_dir}/character-json.json") as fusion_history:
         history = json.load(fusion_history)
     return history
+
+
+def main(teams: List[str]) -> None:
+    history = get_history()
+
+    guild = Ledger(history)
+
+    charts = construct_chart_list(guild, teams)
+
+    prep_charts_dir()
+
+    for chart in charts:
+        # chart.render()
+        chart.save_chart()
 
 
 chosen_team = parse_args()
