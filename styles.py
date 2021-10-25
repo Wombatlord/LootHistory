@@ -1,4 +1,4 @@
-class Style(dict):
+class Style:
     fonts = {
         "inconsolata": "Inconsolata NF"
     }
@@ -22,6 +22,3 @@ class Style(dict):
 
 def choose_style(style):
     return [element for (key, element) in Style.styles[style].items()]
-
-
-choose_style("default")
