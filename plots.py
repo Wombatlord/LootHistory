@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from config import Config
-from styles import choose_style
+from styles import choose_style, choose_bar_style
 
 DataPoints = List[Tuple[str, int]]
 DataSeries = Tuple[List[str], List[int]]
@@ -187,10 +187,7 @@ class CombinedPieBar(Chart):
         self.apply_bar_style(
             figure=fig,
             axes=bar,
-            title="Loot Assignment Totals",
-            xlabel="Mainspec BIS / Upgrade pieces awarded",
-            tick_colors=self.chart_colors["goldenrod"],
-            face_color=self.chart_colors["almost_black"]
+            **choose_bar_style("default")
         )
 
         pie.pie(values, labels=labels, autopct='%1.1f%%', pctdistance=0.8, colors=self.role_colors)
