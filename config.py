@@ -12,6 +12,8 @@ class Config:
     format: 0915 (MMDD)
     """
 
+    style_choice: Optional[str] = None
+
     charts_dir: str = "./charts"
     """
     Destination dir for generation of charts

@@ -175,7 +175,7 @@ class CombinedPieBar(Chart):
         y_pos = np.arange(len(labels))
         px = 1 / plt.rcParams['figure.dpi']
 
-        self.apply_style(*choose_style("default"))
+        self.apply_style(*choose_style(Config.style_choice))
 
         fig, (bar, pie) = plt.subplots(1, 2, tight_layout=True, figsize=(1600 * px, 800 * px))
         fig.suptitle(f"Fusion: Team {self.team_id} Mainspec Loot Share", color=self.chart_colors["goldenrod"])
@@ -187,7 +187,7 @@ class CombinedPieBar(Chart):
         self.apply_bar_style(
             figure=fig,
             axes=bar,
-            **choose_bar_style("default")
+            **choose_bar_style(Config.style_choice)
         )
 
         pie.pie(values, labels=labels, autopct='%1.1f%%', pctdistance=0.8, colors=self.role_colors)

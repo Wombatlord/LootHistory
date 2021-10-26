@@ -28,6 +28,16 @@ def date_filter_prompt():
     Config.date_filter = f"2021{supplied_date}"
 
 
+def style_choice_prompt():
+    chosen_style = input("Please choose a style:\n")
+
+    if chosen_style == "":
+        chosen_style = "default"
+
+    Config.style_choice = chosen_style
+    print(f"Chosen style: {Config.style_choice.upper()}")
+
+
 def construct_chart_list(guild, teams) -> List[plots.Chart]:
     """
     For the list of teams supplied, a list of charts to be saved is returned
@@ -83,6 +93,7 @@ def main(teams: List[str]) -> None:
 
 chosen_team = parse_args()
 date_filter_prompt()
+style_choice_prompt()
 main(chosen_team)
 
 # charts = functools.reduce(
