@@ -108,7 +108,7 @@ class Player:
     def main_spec_received(self) -> List[ReceivedItem]:
         return [
             item for item in self.received
-            if not item.is_excluded and item.received_after(Config.date_filter) and not item.from_instance
+            if not item.is_excluded and item.received_after(Config.date_filter) and not item.from_instance and not item.is_pattern_or_plan
         ]
 
 
