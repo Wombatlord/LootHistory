@@ -10,6 +10,7 @@ import functools
 import plots
 from config import Config
 from ledger import Ledger, DataSet
+from styles import Style
 
 team_x = "Team X - Rainbow"
 team_y = "Team Y - nicorn"
@@ -31,11 +32,11 @@ def date_filter_prompt():
 def style_choice_prompt():
     chosen_style = input("Please choose a style:\n")
 
-    if chosen_style == "":
+    if chosen_style not in Style.styles:
         chosen_style = "default"
 
     Config.style_choice = chosen_style
-    print(f"Chosen style: {Config.style_choice.upper()}")
+    print(f"Chosen style: {Config.style_choice.capitalize()}")
 
 
 def construct_chart_list(guild, teams) -> List[plots.Chart]:

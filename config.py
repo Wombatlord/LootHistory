@@ -13,6 +13,11 @@ class Config:
     """
 
     style_choice: Optional[str] = None
+    """
+    style_choice is a user supplied string used to select a visual style for charts.
+    Configures titles and colors of a figure and chart elements within that figure.
+    New styles can be added by copying and tweaking the default style in Styles.py
+    """
 
     charts_dir: str = "./charts"
     """
