@@ -10,6 +10,10 @@ def choose_bar_style(style) -> Dict[str, str]:
 
 
 class Style:
+    """
+    Colors & Visual Styling element configuration.
+    """
+
     fonts = {
         "inconsolata": "Inconsolata NF"
     }
@@ -18,6 +22,25 @@ class Style:
         "goldenrod": "xkcd:goldenrod",
         "ocean": "xkcd:ocean",
         "almost_black": "xkcd:almost black"
+    }
+
+    """
+    To create a new style, copy and paste each "default" dict and assign a new key.
+    The key in role_colors, styles, bar_styles must match.
+    eg: "default", "default", "default".
+    """
+    role_colors = {
+        "default": {
+            "Warrior": "xkcd:chocolate",
+            "Rogue": "xkcd:goldenrod",
+            "Hunter": "xkcd:hunter green",
+            "Mage": "xkcd:cyan",
+            "Warlock": "xkcd:indigo",
+            "Priest": "white",
+            "Druid": "xkcd:dusty orange",
+            "Paladin": "pink",
+            "Shaman": "xkcd:royal blue"
+        }
     }
 
     styles = {

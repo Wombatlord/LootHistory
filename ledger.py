@@ -6,6 +6,7 @@ from typing import Dict, List, Tuple
 from dataclasses import dataclass
 
 from config import Config
+from styles import Style
 
 DataSet = List[Tuple[str, int]]
 
@@ -134,18 +135,6 @@ class HistoryData:
 
 
 class Ledger:
-    role_colors = {
-        "Warrior": "xkcd:chocolate",
-        "Rogue": "xkcd:goldenrod",
-        "Hunter": "xkcd:hunter green",
-        "Mage": "xkcd:cyan",
-        "Warlock": "xkcd:indigo",
-        "Priest": "white",
-        "Druid": "xkcd:dusty orange",
-        "Paladin": "pink",
-        "Shaman": "xkcd:royal blue",
-    }
-
     def __init__(self, history: List[dict]) -> None:
         self.history: HistoryData = HistoryData.parse(history)
         self.teams = {}
@@ -164,10 +153,10 @@ class Ledger:
 
             self.teams[team_name] = [*self.teams.get(team_name, []), player]
 
-    def assign_role_colors(self):
+    def assign_role_colors(self) -> None:
         for player in self.history.players:
-            if player.role in self.role_colors:
-                player.role_color = self.role_colors[player.role]
+            if player.role in Style.role_colors[Config.style_choice]:
+                player.role_color = Style.role_colors[Config.style_choice][player.role]
 
     def sequence_role_colors(self, dataset: DataSet, team_name: str) -> List[str]:
         return functools.reduce(
