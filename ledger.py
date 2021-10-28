@@ -167,6 +167,22 @@ class Ledger:
             ]
         )
 
+    def log_received(self, team_name) -> None:
+        item_count = 0
+        name_tally = []
+        for player in self.history.players:
+            if player not in Team(team_name):
+                continue
+
+            for item in player.received:
+                if player.name not in name_tally:
+                    item_count = 0
+                if not item.is_excluded and item.received_after(Config.date_filter) and not item.from_instance and not item.is_pattern_or_plan:
+                    item_count += 1
+                    print(f"{player.name} : {item_count} : {item.item_name}")
+                    name_tally.append(player.name)
+            print("\n")
+
     @property
     def loot_allocation_all(self) -> Dict[str, int]:
         return {
