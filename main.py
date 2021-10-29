@@ -41,7 +41,7 @@ def style_choice_prompt():
 
 def write_chart_log(guild, teams):
     for team in teams:
-        guild.write_mainspec_log(team_names[team])
+        guild.write_main_spec_to_file(team_names[team])
 
 
 def construct_chart_list(guild, teams) -> List[plots.Chart]:
@@ -91,19 +91,18 @@ def get_history() -> List[dict]:
 
 
 def main(teams: List[str]) -> None:
-    history = get_history()
-
-    guild = Ledger(history)
-
-    charts = construct_chart_list(guild, teams)
-
     prep_charts_dir()
     prep_logs_dir()
 
+    history = get_history()
+    guild = Ledger(history)
+
+    charts = construct_chart_list(guild, teams)
     write_chart_log(guild, teams)
-    # for chart in charts:
-    #     # chart.render()
-    #     chart.save_chart()
+
+    for chart in charts:
+        # chart.render()
+        chart.save_chart()
 
 
 chosen_team = parse_args()

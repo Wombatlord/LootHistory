@@ -184,26 +184,32 @@ class Ledger:
 
             print()
 
-    def write_mainspec_log(self, team_name) -> None:
+    def write_main_spec_to_file(self, team_name) -> None:
         """
         Writes a log with player & item names to accompany main spec loot charts.
         """
-        divider = "-"*20
         with open(f"{Config.logs_dir}/{team_name}-chart-log.txt", "w") as log:
-            item_count = 0
-            previous_name: str = ""
-            for player in self.history.players:
-                if player not in Team(team_name):
-                    continue
+            self.check_player(team_name, log)
 
-                for item in player.main_spec_received:
-                    if player.name is not previous_name:
-                        item_count = 0
-                        log.write(f"{divider}\n")
+    def check_player(self, team_name, log) -> None:
+        for player in self.history.players:
+            if player not in Team(team_name):
+                continue
 
-                    item_count += 1
-                    log.write(f"{player.name} : {item_count} : {item.item_name}\n")
-                    previous_name = player.name
+            self.loot_log_main_spec(player, log)
+
+    def loot_log_main_spec(self, player, log) -> None:
+        divider: str = "-" * 20
+        item_count: int = 0
+        previous_name: str = ""
+        for item in player.main_spec_received:
+            if player.name is not previous_name:
+                item_count = 0
+                log.write(f"{divider}\n")
+
+            item_count += 1
+            log.write(f"{player.name} : {item_count} : {item.item_name}\n")
+            previous_name = player.name
 
     @property
     def loot_allocation_all(self) -> Dict[str, int]:
