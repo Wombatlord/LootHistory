@@ -6,6 +6,7 @@ from typing import Dict, List, Tuple
 from dataclasses import dataclass
 
 from config import Config
+from styles import Style
 
 DataSet = List[Tuple[str, int]]
 
@@ -108,7 +109,7 @@ class Player:
     def main_spec_received(self) -> List[ReceivedItem]:
         return [
             item for item in self.received
-            if not item.is_excluded and item.received_after(Config.date_filter) and not item.from_instance
+            if not item.is_excluded and item.received_after(Config.date_filter) and not item.from_instance and not item.is_pattern_or_plan
         ]
 
 
@@ -134,18 +135,6 @@ class HistoryData:
 
 
 class Ledger:
-    role_colors = {
-        "Warrior": "xkcd:chocolate",
-        "Rogue": "xkcd:goldenrod",
-        "Hunter": "xkcd:hunter green",
-        "Mage": "xkcd:cyan",
-        "Warlock": "xkcd:indigo",
-        "Priest": "white",
-        "Druid": "xkcd:dusty orange",
-        "Paladin": "pink",
-        "Shaman": "xkcd:royal blue",
-    }
-
     def __init__(self, history: List[dict]) -> None:
         self.history: HistoryData = HistoryData.parse(history)
         self.teams = {}
@@ -164,10 +153,10 @@ class Ledger:
 
             self.teams[team_name] = [*self.teams.get(team_name, []), player]
 
-    def assign_role_colors(self):
+    def assign_role_colors(self) -> None:
         for player in self.history.players:
-            if player.role in self.role_colors:
-                player.role_color = self.role_colors[player.role]
+            if player.role in Style.role_colors[Config.style_choice]:
+                player.role_color = Style.role_colors[Config.style_choice][player.role]
 
     def sequence_role_colors(self, dataset: DataSet, team_name: str) -> List[str]:
         return functools.reduce(
@@ -177,6 +166,44 @@ class Ledger:
                 for entry in dataset
             ]
         )
+
+    def print_mainspec_log(self, team_name) -> None:
+        item_count = 0
+        previous_name: str = ""
+        for player in self.history.players:
+            if player not in Team(team_name):
+                continue
+
+            for item in player.main_spec_received:
+                if player.name is not previous_name:
+                    item_count = 0
+
+                item_count += 1
+                print(f"{player.name} : {item_count} : {item.item_name}")
+                previous_name = player.name
+
+            print()
+
+    def write_mainspec_log(self, team_name) -> None:
+        """
+        Writes a log with player & item names to accompany main spec loot charts.
+        """
+        divider = "-"*20
+        with open(f"{Config.logs_dir}/{team_name}-chart-log.txt", "w") as log:
+            item_count = 0
+            previous_name: str = ""
+            for player in self.history.players:
+                if player not in Team(team_name):
+                    continue
+
+                for item in player.main_spec_received:
+                    if player.name is not previous_name:
+                        item_count = 0
+                        log.write(f"{divider}\n")
+
+                    item_count += 1
+                    log.write(f"{player.name} : {item_count} : {item.item_name}\n")
+                    previous_name = player.name
 
     @property
     def loot_allocation_all(self) -> Dict[str, int]:

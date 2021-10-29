@@ -10,6 +10,7 @@ import functools
 import plots
 from config import Config
 from ledger import Ledger, DataSet
+from styles import Style
 
 team_x = "Team X - Rainbow"
 team_y = "Team Y - nicorn"
@@ -26,6 +27,21 @@ def parse_args() -> List[str]:
 def date_filter_prompt():
     supplied_date = input("Please enter a date: MMDD\n")
     Config.date_filter = f"2021{supplied_date}"
+
+
+def style_choice_prompt():
+    chosen_style = input("Please choose a style:\n")
+
+    if chosen_style not in Style.styles:
+        chosen_style = "default"
+
+    Config.style_choice = chosen_style
+    print(f"Chosen style: {Config.style_choice.capitalize()}")
+
+
+def write_chart_log(guild, teams):
+    for team in teams:
+        guild.write_mainspec_log(team_names[team])
 
 
 def construct_chart_list(guild, teams) -> List[plots.Chart]:
@@ -61,6 +77,13 @@ def prep_charts_dir() -> None:
     Path(Config.charts_dir).mkdir(parents=True, exist_ok=True)
 
 
+def prep_logs_dir() -> None:
+    """
+    Sets up logs dir if it doesn't exist yet (if you change the default config)
+    """
+    Path(Config.logs_dir).mkdir(parents=True, exist_ok=True)
+
+
 def get_history() -> List[dict]:
     with open(f"{Config.history_dir}/character-json.json") as fusion_history:
         history = json.load(fusion_history)
@@ -75,14 +98,17 @@ def main(teams: List[str]) -> None:
     charts = construct_chart_list(guild, teams)
 
     prep_charts_dir()
+    prep_logs_dir()
 
-    for chart in charts:
-        # chart.render()
-        chart.save_chart()
+    write_chart_log(guild, teams)
+    # for chart in charts:
+    #     # chart.render()
+    #     chart.save_chart()
 
 
 chosen_team = parse_args()
 date_filter_prompt()
+style_choice_prompt()
 main(chosen_team)
 
 # charts = functools.reduce(
