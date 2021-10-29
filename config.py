@@ -24,6 +24,11 @@ class Config:
     Destination dir for generation of charts
     """
 
+    logs_dir: str = "./logs"
+    """
+    Destination for log data to accompany charts.
+    """
+
     history_dir: str = "./history"
     """
     Source dir for raw data to be visualised
