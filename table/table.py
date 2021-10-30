@@ -1,32 +1,17 @@
 from __future__ import annotations
 
-from typing import Union, Any, Iterable
+from typing import Union, Any, Sequence
 from collections import Hashable
 
 
-class Stringy(str):
-    def __str__(self) -> str:
-        pass
-
-
-def _quacks_like_a(obj: Any, duck: type) -> bool:
-    """
-
-    """
-    impl_dunder = {*obj.__class__.__dict__.keys()} & {*duck.__dict__.keys()} == {*duck.__dict__.keys()}
-    return impl_dunder or isinstance(obj, duck)
-
-
 class Schema(tuple):
-    def __new__(cls, *args):
-        if not all(_quacks_like_a(item, Stringy) for item in args):
-            raise ValueError("Headings must be string like!")
-        return super(Schema, cls).__new__(cls, *args)
-
-    def build_row(self, *values) -> Row:
+    def build_row(self, values: Sequence[str]) -> Row:
         if len(values) != len(self):
             raise ValueError(f"Expected {len(self)} rows, got {len(values)}")
-        return Row.__new__(**{item: values[i] for i, item in enumerate(self)})
+        return Row(**{item: values[i] for i, item in enumerate(self)})
+
+    def new_table(self):
+        return Table(self)
 
 
 class Row(tuple):
@@ -66,7 +51,7 @@ class Row(tuple):
             raise IndexError(f"Row index {item} out of bounds, rows are indexed from {0} to {len(self)}")
 
     def get(self, column_key: Hashable, default=None) -> Any:
-        if not _quacks_like_a(column_key, Hashable):
+        if not isinstance(column_key, Hashable):
             raise TypeError(f"The key type supplied ({type(column_key)}) does not implement a __hash__ method")
 
         index = self._index_map.get(column_key)
@@ -81,8 +66,6 @@ class Row(tuple):
 
     @separator.setter
     def separator(self, value: str) -> None:
-        if not _quacks_like_a(value, Stringy):
-            raise TypeError(f"The separator must be str or implement __str__, {type(value)} does not satisfy this.")
         self._separator = value
 
     @property
@@ -96,18 +79,19 @@ class Row(tuple):
 class Table(list):
     _schema: Schema
 
-    def __new__(cls, headings: Iterable[str]) -> Table:
+    def __new__(cls, headings: Sequence[str]) -> Table:
         table = super(Table, cls).__new__(cls)
-        cls.__init__(table, headings)
         return table
 
-    def __init__(self, schema: Iterable[str]):
+    def __init__(self, headings: Sequence[str]):
         super(Table, self).__init__()
-        self._schema = Schema(schema)
-        self.append(Row(**{heading: heading for heading in schema}))
+        self._schema = Schema(headings)
+        self.append(Row(**{heading: heading for heading in headings}))
 
-    def append(self, row: Row) -> Table:
-        if row.schema != self._schema:
+    def append(self, row: Union[Row, Sequence[str]]) -> Table:
+        if not isinstance(row, Row):
+            row = self.schema.build_row(row)
+        if row.schema != self.schema:
             raise ValueError(f"The row provided had an incorrect schema, expected {self._schema}, got {row.schema}")
         super(Table, self).append(row)
         return self
@@ -116,5 +100,13 @@ class Table(list):
         self.append(self._schema.build_row(*args))
         return self
 
+    @property
+    def schema(self) -> Schema:
+        return self._schema
+
     def __str__(self) -> str:
         return "".join(self)
+
+    @property
+    def body(self) -> Sequence[Row]:
+        return tuple(self[1:])
