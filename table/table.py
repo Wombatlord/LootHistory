@@ -1,11 +1,7 @@
 from __future__ import annotations
 
 from typing import Union, Any, Iterable
-
-
-class Hashable:
-    def __hash__(self) -> int:
-        pass
+from collections import Hashable
 
 
 class Stringy(str):
@@ -14,7 +10,10 @@ class Stringy(str):
 
 
 def _quacks_like_a(obj: Any, duck: type) -> bool:
-    impl_dunder = {*obj.__dict__.keys()} | {*duck.__dict__.keys()} == {*duck.__dict__.keys()}
+    """
+
+    """
+    impl_dunder = {*obj.__class__.__dict__.keys()} & {*duck.__dict__.keys()} == {*duck.__dict__.keys()}
     return impl_dunder or isinstance(obj, duck)
 
 
@@ -27,7 +26,7 @@ class Schema(tuple):
     def build_row(self, *values) -> Row:
         if len(values) != len(self):
             raise ValueError(f"Expected {len(self)} rows, got {len(values)}")
-        return Row(**{item: values[i] for i, item in enumerate(self)})
+        return Row.__new__(**{item: values[i] for i, item in enumerate(self)})
 
 
 class Row(tuple):
@@ -35,22 +34,22 @@ class Row(tuple):
 
     def __new__(cls, **kwargs) -> Row:
         items = kwargs.items()
+        row = super(Row, cls).__new__(cls, (value for (_, value) in items))
+        return row
+
+    def __init__(self, **kwargs):
+        items = kwargs.items()
         index_map, values = (
             {key: index for index, (key, _) in enumerate(items)},
             tuple(value for (_, value) in items),
         )
-        row = super(Row, cls).__new__(cls, values)
-        cls.__init__(row, index_map)
-        return row
-
-    def __init__(self, index_map: dict):
         self._index_map = index_map
         self._separator = self._default_separator
 
     def __getitem__(self, item: Union[str, int, slice]) -> Any:
         try:
-            index = (str, int, slice).index(type(item))
-        except IndexError:
+            index = (int, slice, str).index(type(item))
+        except ValueError:
             raise TypeError(f"A row cannot be indexed by values of type {type(item)}")
 
         try:
@@ -60,7 +59,7 @@ class Row(tuple):
                 lambda i: super(Row, self).__getitem__(self._index_map[i]),
             )[
                 index
-            ]
+            ](item)
         except KeyError:
             raise KeyError(f"No column named {item} exists")
         except IndexError:
@@ -83,15 +82,15 @@ class Row(tuple):
     @separator.setter
     def separator(self, value: str) -> None:
         if not _quacks_like_a(value, Stringy):
-            raise TypeError("The separator must be str or implement __str__, {type(value)} does not satisfy this.")
+            raise TypeError(f"The separator must be str or implement __str__, {type(value)} does not satisfy this.")
         self._separator = value
 
     @property
-    def schema(self) -> tuple:
-        return tuple(self._index_map.keys())
+    def schema(self) -> Schema:
+        return Schema(self._index_map.keys())
 
     def __str__(self) -> str:
-        return self._separator.join(self.values) + "\n"
+        return str(self._separator).join(self) + "\n"
 
 
 class Table(list):
@@ -110,7 +109,7 @@ class Table(list):
     def append(self, row: Row) -> Table:
         if row.schema != self._schema:
             raise ValueError(f"The row provided had an incorrect schema, expected {self._schema}, got {row.schema}")
-        super().append(row)
+        super(Table, self).append(row)
         return self
 
     def add_row_values(self, *args) -> Table:
