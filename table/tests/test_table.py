@@ -93,3 +93,8 @@ class TableTest(TestCase):
         for j, row in enumerate(table.body):
             for i, cell in enumerate(row):
                 assert cell == f"value_{i}_{j}", f"{cell}, i={i}, j={j}"
+
+        for j in range(len(table.body)):
+            for i in range(len(table.body[j])):
+                cell = table.body[j][table.schema[i]]
+                assert cell == f"value_{i}_{j}", f"{cell}, i={i}, j={j}"
