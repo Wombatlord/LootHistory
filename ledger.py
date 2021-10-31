@@ -109,7 +109,8 @@ class Player:
     def main_spec_received(self) -> List[ReceivedItem]:
         return [
             item for item in self.received
-            if not item.is_excluded and item.received_after(Config.date_filter) and not item.from_instance and not item.is_pattern_or_plan
+            if not item.is_excluded and item.received_after(
+                Config.date_filter) and not item.from_instance and not item.is_pattern_or_plan
         ]
 
 
@@ -166,50 +167,6 @@ class Ledger:
                 for entry in dataset
             ]
         )
-
-    def print_mainspec_log(self, team_name) -> None:
-        item_count = 0
-        previous_name: str = ""
-        for player in self.history.players:
-            if player not in Team(team_name):
-                continue
-
-            for item in player.main_spec_received:
-                if player.name is not previous_name:
-                    item_count = 0
-
-                item_count += 1
-                print(f"{player.name} : {item_count} : {item.item_name}")
-                previous_name = player.name
-
-            print()
-
-    def write_main_spec_to_file(self, team_name) -> None:
-        """
-        Writes a log with player & item names to accompany main spec loot charts.
-        """
-        with open(f"{Config.logs_dir}/{team_name}-chart-log.txt", "w") as log:
-            self.check_player(team_name, log)
-
-    def check_player(self, team_name, log) -> None:
-        for player in self.history.players:
-            if player not in Team(team_name):
-                continue
-
-            self.loot_log_main_spec(player, log)
-
-    def loot_log_main_spec(self, player, log) -> None:
-        divider: str = "-" * 20
-        item_count: int = 0
-        previous_name: str = ""
-        for item in player.main_spec_received:
-            if player.name is not previous_name:
-                item_count = 0
-                log.write(f"{divider}\n")
-
-            item_count += 1
-            log.write(f"{player.name} : {item_count} : {item.item_name}\n")
-            previous_name = player.name
 
     @property
     def loot_allocation_all(self) -> Dict[str, int]:

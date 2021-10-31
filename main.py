@@ -1,4 +1,4 @@
-#! /usr/bin/env python3
+#! /usr/bin/env python
 import json
 import sys
 from operator import add
@@ -10,6 +10,7 @@ import functools
 import plots
 from config import Config
 from ledger import Ledger, DataSet
+from logger.file_logger import FilesystemLogger
 from styles import Style
 
 team_x = "Team X - Rainbow"
@@ -41,7 +42,7 @@ def style_choice_prompt():
 
 def write_chart_log(guild, teams):
     for team in teams:
-        guild.write_main_spec_to_file(team_names[team])
+        FilesystemLogger.log_main_spec(guild, team_names[team])
 
 
 def construct_chart_list(guild, teams) -> List[plots.Chart]:
@@ -109,11 +110,3 @@ chosen_team = parse_args()
 date_filter_prompt()
 style_choice_prompt()
 main(chosen_team)
-
-# charts = functools.reduce(
-#     operator.add,
-#     [
-#         [constructor(dataset) for dataset in datasets]
-#         for constructor in [plots.PieChart, plots.BarChart]
-#     ]
-# )
