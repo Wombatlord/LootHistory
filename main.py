@@ -45,6 +45,11 @@ def write_chart_log(guild, teams):
         FilesystemLogger.log_main_spec(guild, team_names[team])
 
 
+def print_loot_over_time(guild, teams):
+    for team in teams:
+        guild.loot_over_time(team_names[team])
+
+
 def construct_chart_list(guild, teams) -> List[plots.Chart]:
     """
     For the list of teams supplied, a list of charts to be saved is returned
@@ -98,12 +103,13 @@ def main(teams: List[str]) -> None:
     history = get_history()
     guild = Ledger(history)
 
-    charts = construct_chart_list(guild, teams)
-    write_chart_log(guild, teams)
+    # charts = construct_chart_list(guild, teams)
+    # write_chart_log(guild, teams)
+    print_loot_over_time(guild, teams)
 
-    for chart in charts:
-        # chart.render()
-        chart.save_chart()
+    # for chart in charts:
+    #     # chart.render()
+    #     chart.save_chart()
 
 
 chosen_team = parse_args()
