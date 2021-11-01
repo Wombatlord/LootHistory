@@ -46,9 +46,10 @@ class TerminalLogger(Logger):
 
         table = RichTable(
             box=box.ROUNDED,
-            title="Mainspec / Upgrade Loot Count",
+            title="[bold]Mainspec / Upgrade Loot Count[/bold]",
             style="pale_green3",
-            title_style="pale_green3"
+            title_style="pale_green3",
+            show_lines=True,
         )
 
         for i, heading in enumerate(headings):
@@ -62,7 +63,6 @@ class TerminalLogger(Logger):
                 )
 
         for player in ledger.teams[team_name]:
-            table.show_lines = True
             for i, item in enumerate(player.main_spec_received):
                 table.add_row(player.name, item.item_name, str(i + 1))
 
