@@ -4,7 +4,9 @@ import sys
 from operator import add
 from pathlib import Path
 from typing import List
-
+from rich import print as rprint
+from rich.console import Console
+from rich.prompt import Prompt, Confirm
 import functools
 
 import plots
@@ -26,18 +28,29 @@ def parse_args() -> List[str]:
 
 
 def date_filter_prompt():
-    supplied_date = input("Please enter a date: MMDD\n")
+    date_prompt = "[bold pale_green3]Please enter a date:[/bold pale_green3]"
+    month_pair = "[bold gold3]MM[/bold gold3]"
+    day_pair = "[bold cyan]DD[/bold cyan]"
+
+    rprint(f"{date_prompt} {month_pair}{day_pair}")
+
+    supplied_date = input()
     Config.date_filter = f"2021{supplied_date}"
 
 
 def style_choice_prompt():
-    chosen_style = input("Please choose a style:\n")
+    style_prompt = "[bold pale_green3]Please choose a style:[/bold pale_green3]"
+    chosen_style = Prompt.ask(f"{style_prompt}", choices=["default"], default="default")
 
     if chosen_style not in Style.styles:
         chosen_style = "default"
 
     Config.style_choice = chosen_style
-    print(f"Chosen style: {Config.style_choice.capitalize()}\n")
+    rprint(f"[bold pale_green3]Chosen style:[/bold pale_green3] [bold gold3]{Config.style_choice.capitalize()}[/bold gold3]\n")
+
+
+def log_prompt():
+    return Confirm.ask("[bold pale_green3]Would you like to display and save a log?[/bold pale_green3]")
 
 
 def write_chart_log(guild, teams):
@@ -103,14 +116,18 @@ def main(teams: List[str]) -> None:
     history = get_history()
     guild = Ledger(history)
 
-    # charts = construct_chart_list(guild, teams)
-    # write_chart_log(guild, teams)
+    charts = construct_chart_list(guild, teams)
 
-    terminal_log_main_spec(guild, teams)
-    # for chart in charts:
-    #     # chart.render()
-    #     chart.save_chart()
+    if log_prompt():
+        terminal_log_main_spec(guild, teams)
+        write_chart_log(guild, teams)
 
+    for chart in charts:
+        # chart.render()
+        chart.save_chart()
+
+
+console = Console()
 
 chosen_team = parse_args()
 date_filter_prompt()
