@@ -1,7 +1,8 @@
 from config import Config
 from table.table import Schema, Table
 from rich.console import Console
-from rich.table import Table as RichTable
+from rich.table import Table as RichTable, Column
+from rich import box
 
 
 class Logger:
@@ -37,11 +38,28 @@ class TerminalLogger(Logger):
         Prints a log to terminal with player & item names to accompany main spec loot charts.
         Uses RichTable for fancy formatting.
         """
-        table = RichTable(title="Mainspec / Upgrade Loot Count")
-        headings = ["Player Name", "Item Name", "Item Count"]
-        col_colors = ["cyan", "magenta", "gold3"]
+        headings = {
+            "Player Name": "cyan",
+            "Item Name": "medium_orchid",
+            "Item Count": "gold3"
+        }
+
+        table = RichTable(
+            box=box.ROUNDED,
+            title="Mainspec / Upgrade Loot Count",
+            style="pale_green3",
+            title_style="pale_green3"
+        )
+
         for i, heading in enumerate(headings):
-            table.add_column(heading, justify="center", style=col_colors[i])
+            if heading in headings.keys():
+                table.add_column(
+                    heading,
+                    justify="center",
+                    style=headings[heading],
+                    header_style=headings[heading],
+                    no_wrap=True
+                )
 
         for player in ledger.teams[team_name]:
             table.show_lines = True

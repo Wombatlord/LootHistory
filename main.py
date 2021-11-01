@@ -37,7 +37,7 @@ def style_choice_prompt():
         chosen_style = "default"
 
     Config.style_choice = chosen_style
-    print(f"Chosen style: {Config.style_choice.capitalize()}")
+    print(f"Chosen style: {Config.style_choice.capitalize()}\n")
 
 
 def write_chart_log(guild, teams):
