@@ -10,7 +10,7 @@ import functools
 import plots
 from config import Config
 from ledger import Ledger, DataSet
-from logger.file_logger import FilesystemLogger
+from logger.file_logger import FilesystemLogger, TerminalLogger
 from styles import Style
 
 team_x = "Team X - Rainbow"
@@ -45,9 +45,9 @@ def write_chart_log(guild, teams):
         FilesystemLogger.log_main_spec(guild, team_names[team])
 
 
-def print_loot_over_time(guild, teams):
+def terminal_log_main_spec(guild, teams):
     for team in teams:
-        guild.loot_over_time(team_names[team])
+        TerminalLogger.log_main_spec(guild, team_names[team])
 
 
 def construct_chart_list(guild, teams) -> List[plots.Chart]:
@@ -105,8 +105,8 @@ def main(teams: List[str]) -> None:
 
     # charts = construct_chart_list(guild, teams)
     # write_chart_log(guild, teams)
-    print_loot_over_time(guild, teams)
 
+    terminal_log_main_spec(guild, teams)
     # for chart in charts:
     #     # chart.render()
     #     chart.save_chart()
