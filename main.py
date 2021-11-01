@@ -1,4 +1,5 @@
 #! /usr/bin/env python
+import functools
 import json
 import sys
 from operator import add
@@ -7,7 +8,7 @@ from typing import List
 from rich import print as rprint
 from rich.console import Console
 from rich.prompt import Prompt, Confirm
-import functools
+from rich.progress import track
 
 import plots
 from config import Config
@@ -35,6 +36,7 @@ def date_filter_prompt():
     rprint(f"{date_prompt} {month_pair}{day_pair}")
 
     supplied_date = input()
+    rprint()
     Config.date_filter = f"2021{supplied_date}"
 
 
@@ -50,7 +52,9 @@ def style_choice_prompt():
 
 
 def log_prompt():
-    return Confirm.ask("[bold pale_green3]Would you like to display and save a log?[/bold pale_green3]")
+    display_and_save = Confirm.ask("[bold pale_green3]Would you like to display and save a log?[/bold pale_green3]")
+    rprint()
+    return display_and_save
 
 
 def write_chart_log(guild, teams):
@@ -122,7 +126,7 @@ def main(teams: List[str]) -> None:
         terminal_log_main_spec(guild, teams)
         write_chart_log(guild, teams)
 
-    for chart in charts:
+    for chart in track(charts, description="[bold gold3]Processing...[/bold gold3]"):
         # chart.render()
         chart.save_chart()
 
