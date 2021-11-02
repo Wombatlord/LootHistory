@@ -1,7 +1,7 @@
 from config import Config
 from table.table import Schema, Table
 from rich.console import Console
-from rich.table import Table as RichTable, Column
+from rich.table import Table as RichTable
 from rich import box
 
 
@@ -68,3 +68,4 @@ class TerminalLogger(Logger):
 
         console = Console()
         console.print(table)
+        print()
