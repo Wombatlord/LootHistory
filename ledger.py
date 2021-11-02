@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import functools
 import operator
-from typing import Dict, List, Tuple
+from typing import Dict, List, Tuple, Set
 from dataclasses import dataclass
 
 from config import Config
@@ -68,6 +68,12 @@ class ReceivedItem:
     def from_instance(self) -> bool:
         instances: List[int] = [10, 11]
         return any(instance is self.instance_id for instance in instances)
+
+    @property
+    def date_received(self):
+        if self.received_at:
+            date_time_split = self.received_at.split(" ")
+            return date_time_split[0]
 
     def received_after(self, date: str) -> bool:
         if self.received_at:
@@ -166,6 +172,17 @@ class Ledger:
                 [player.role_color for player in self.teams[team_name] if entry[0] == player.name]
                 for entry in dataset
             ]
+        )
+
+    def get_dates(self) -> Set:
+        return set(
+            functools.reduce(
+                operator.add,
+                [
+                    [item.date_received for item in player.main_spec_received]
+                    for player in self.history.players
+                ]
+            )
         )
 
     @property
