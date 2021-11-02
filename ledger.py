@@ -174,13 +174,13 @@ class Ledger:
             ]
         )
 
-    def get_dates(self) -> Set:
+    def get_unique_dates(self, team_name) -> Set[str]:
         return set(
             functools.reduce(
                 operator.add,
                 [
                     [item.date_received for item in player.main_spec_received]
-                    for player in self.history.players
+                    for player in self.teams[team_name]
                 ]
             )
         )

@@ -113,6 +113,11 @@ def get_history() -> List[dict]:
     return history
 
 
+def loot_received_dates(guild, teams):
+    for team in teams:
+        rprint(guild.get_unique_dates(team_names[team]))
+
+
 def main(teams: List[str]) -> None:
     prep_charts_dir()
     prep_logs_dir()
@@ -129,6 +134,8 @@ def main(teams: List[str]) -> None:
     for chart in track(charts, description="[bold gold3]Processing...[/bold gold3]"):
         # chart.render()
         chart.save_chart()
+
+    loot_received_dates(guild, teams)
 
 
 console = Console()
