@@ -185,6 +185,23 @@ class Ledger:
             )
         )
 
+    def unique_dates_to_dict(self, team_name) -> Dict[str, int]:
+        return {date: 0 for date in sorted(self.get_unique_dates(team_name))}
+
+    def loot_per_raid(self, team_name) -> List[Dict[str, Dict[str, int]]]:
+        player_dates_loot_totals = []
+
+        for player in self.teams[team_name]:
+            date_dict = {player.name: self.unique_dates_to_dict(team_name)}
+
+            for item in player.main_spec_received:
+                if item.date_received in date_dict[player.name]:
+                    date_dict[player.name][item.date_received] += 1
+
+            player_dates_loot_totals.append(date_dict)
+
+        return player_dates_loot_totals
+
     @property
     def loot_allocation_all(self) -> Dict[str, int]:
         return {

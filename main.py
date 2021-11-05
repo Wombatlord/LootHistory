@@ -67,6 +67,12 @@ def terminal_log_main_spec(guild, teams):
         TerminalLogger.log_main_spec(guild, team_names[team])
 
 
+def loot_received_dates(guild, teams):
+    for team in teams:
+        # rprint(guild.unique_dates_to_dict(team_names[team]))
+        rprint(guild.loot_per_raid(team_names[team]))
+
+
 def construct_chart_list(guild, teams) -> List[plots.Chart]:
     """
     For the list of teams supplied, a list of charts to be saved is returned
@@ -111,11 +117,6 @@ def get_history() -> List[dict]:
     with open(f"{Config.history_dir}/character-json.json") as fusion_history:
         history = json.load(fusion_history)
     return history
-
-
-def loot_received_dates(guild, teams):
-    for team in teams:
-        rprint(guild.get_unique_dates(team_names[team]))
 
 
 def main(teams: List[str]) -> None:
