@@ -1,9 +1,11 @@
 from __future__ import annotations
 
 import functools
+import itertools
 import operator
-from typing import Dict, List, Tuple, Set
+from typing import Dict, List, Tuple, Set, Generator
 from dataclasses import dataclass
+from rich import print as rprint
 
 from config import Config
 from styles import Style
@@ -185,22 +187,46 @@ class Ledger:
             )
         )
 
-    def unique_dates_to_dict(self, team_name) -> Dict[str, int]:
+    def _unique_dates_to_dict(self, team_name) -> Dict[str, int]:
         return {date: 0 for date in sorted(self.get_unique_dates(team_name))}
 
     def loot_per_raid(self, team_name) -> List[Dict[str, Dict[str, int]]]:
         player_dates_loot_totals = []
 
         for player in self.teams[team_name]:
-            date_dict = {player.name: self.unique_dates_to_dict(team_name)}
+            loot_dates = {player.name: self._unique_dates_to_dict(team_name)}
 
             for item in player.main_spec_received:
-                if item.date_received in date_dict[player.name]:
-                    date_dict[player.name][item.date_received] += 1
+                if item.date_received in loot_dates[player.name]:
+                    loot_dates[player.name][item.date_received] += 1
 
-            player_dates_loot_totals.append(date_dict)
+            player_dates_loot_totals.append(loot_dates)
 
         return player_dates_loot_totals
+
+    def _accumulate_loot_totals(self, team_name) -> Generator[List[int]]:
+        player_dates_loot_totals = self.loot_per_raid(team_name)
+
+        for player in player_dates_loot_totals:
+            for loot_dates in player:
+                loot_per_date = list(player[loot_dates].values())
+                total_over_time = list(itertools.accumulate(loot_per_date))
+                yield total_over_time
+
+    def _accumulated_with_dates(self, team_name) -> Generator[Dict[str, int]]:
+        player_dates_loot = self.loot_per_raid(team_name)
+        totals = self._accumulate_loot_totals(team_name)
+
+        for player in player_dates_loot:
+            for loot_dates in player:
+                dates = list(player[loot_dates].keys())
+                for total in totals:
+                    yield dict(zip(dates, total))
+
+    def loot_over_time(self, team_name) -> List[Dict[str, Dict[str, int]]]:
+        accumulated_loot = self._accumulated_with_dates(team_name)
+
+        return [{player.name: next(accumulated_loot)} for player in self.teams[team_name]]
 
     @property
     def loot_allocation_all(self) -> Dict[str, int]:
