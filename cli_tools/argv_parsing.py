@@ -161,6 +161,7 @@ class ParsedArgs(namedtuple("Inputs", ["args", "flags", "named_args"])):
     args: List[Any]
     flags: Set[str]
     named_args: Dict[str, Any]
+
     @classmethod
     def parse(cls, arg_spec: ArgSpec, argv: Optional[List[str]] = None) -> ParsedArgs:
         return cls(*arg_spec.partition(argv))
