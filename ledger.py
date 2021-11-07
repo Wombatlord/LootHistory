@@ -205,12 +205,7 @@ class Ledger:
 
         return player_dates_loot_totals
 
-    def loot_total_over_time(self, team_name):
-        """
-        READ THIS BEFORE PROCEEDING FURTHER:
-        https://stackoverflow.com/questions/59011622/cumulative-sum-of-items-in-a-dictionary
-        """
-
+    def accumulate_loot_totals(self, team_name):
         dicts = self.loot_per_raid(team_name)
         for entry in dicts:
             for name in entry:
@@ -218,18 +213,27 @@ class Ledger:
                 total_over_time = list(itertools.accumulate(loot_per_date))
                 yield total_over_time
 
-    def _loot_total_over_time(self, team_name):
+    def accumulated_with_dates(self, team_name):
         player_dates_loot = self.loot_per_raid(team_name)
-        totals = self.loot_total_over_time(team_name)
+        totals = self.accumulate_loot_totals(team_name)
+        accumulated_loot = []
         for entry in player_dates_loot:
             for name in entry:
                 dates = list(entry[name].keys())
                 for total in totals:
-                    date_loot_pair = dict(zip(dates, total))
-                    yield date_loot_pair
+                    accumulated_loot.append(dict(zip(dates, total)))
 
+        return accumulated_loot
 
+    def loot_over_time(self, team_name):
+        accumulated_loot = self.accumulated_with_dates(team_name)
+        updated_player_dicts = []
 
+        for i, player in enumerate(self.teams[team_name]):
+            loot_dates = {player.name: accumulated_loot[i]}
+            updated_player_dicts.append(loot_dates)
+
+        return updated_player_dicts
 
     @property
     def loot_allocation_all(self) -> Dict[str, int]:

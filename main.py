@@ -71,7 +71,7 @@ def loot_received_dates(guild, teams):
     for team in teams:
         # rprint(guild.unique_dates_to_dict(team_names[team]))
         # rprint(guild.loot_per_raid(team_names[team]))
-        rprint(guild._loot_total_over_time(team_names[team]))
+        rprint(guild.loot_over_time(team_names[team]))
 
 
 def construct_chart_list(guild, teams) -> List[plots.Chart]:
