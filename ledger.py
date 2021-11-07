@@ -1,9 +1,12 @@
 from __future__ import annotations
 
 import functools
+import itertools
 import operator
 from typing import Dict, List, Tuple, Set
 from dataclasses import dataclass
+import collections
+from rich import print as rprint
 
 from config import Config
 from styles import Style
@@ -192,15 +195,41 @@ class Ledger:
         player_dates_loot_totals = []
 
         for player in self.teams[team_name]:
-            date_dict = {player.name: self.unique_dates_to_dict(team_name)}
+            loot_dates = {player.name: self.unique_dates_to_dict(team_name)}
 
             for item in player.main_spec_received:
-                if item.date_received in date_dict[player.name]:
-                    date_dict[player.name][item.date_received] += 1
+                if item.date_received in loot_dates[player.name]:
+                    loot_dates[player.name][item.date_received] += 1
 
-            player_dates_loot_totals.append(date_dict)
+            player_dates_loot_totals.append(loot_dates)
 
         return player_dates_loot_totals
+
+    def loot_total_over_time(self, team_name):
+        """
+        READ THIS BEFORE PROCEEDING FURTHER:
+        https://stackoverflow.com/questions/59011622/cumulative-sum-of-items-in-a-dictionary
+        """
+
+        dicts = self.loot_per_raid(team_name)
+        for entry in dicts:
+            for name in entry:
+                loot_per_date = list(entry[name].values())
+                total_over_time = list(itertools.accumulate(loot_per_date))
+                yield total_over_time
+
+    def _loot_total_over_time(self, team_name):
+        player_dates_loot = self.loot_per_raid(team_name)
+        totals = self.loot_total_over_time(team_name)
+        for entry in player_dates_loot:
+            for name in entry:
+                dates = list(entry[name].keys())
+                for total in totals:
+                    date_loot_pair = dict(zip(dates, total))
+                    yield date_loot_pair
+
+
+
 
     @property
     def loot_allocation_all(self) -> Dict[str, int]:
