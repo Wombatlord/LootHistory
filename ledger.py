@@ -207,31 +207,31 @@ class Ledger:
     def accumulate_loot_totals(self, team_name) -> Generator[List[int]]:
         player_dates_loot_totals = self.loot_per_raid(team_name)
 
-        for entry in player_dates_loot_totals:
-            for name in entry:
-                loot_per_date = list(entry[name].values())
+        for player in player_dates_loot_totals:
+            for loot_dates in player:
+                loot_per_date = list(player[loot_dates].values())
                 total_over_time = list(itertools.accumulate(loot_per_date))
                 yield total_over_time
 
-    def accumulated_with_dates(self, team_name) -> List[Dict[str, int]]:
+    def accumulated_with_dates(self, team_name) -> Generator[Dict[str, int]]:
         player_dates_loot = self.loot_per_raid(team_name)
         totals = self.accumulate_loot_totals(team_name)
         accumulated_loot = []
 
-        for entry in player_dates_loot:
-            for name in entry:
-                dates = list(entry[name].keys())
+        for player in player_dates_loot:
+            for loot_dates in player:
+                dates = list(player[loot_dates].keys())
                 for total in totals:
-                    accumulated_loot.append(dict(zip(dates, total)))
+                    yield dict(zip(dates, total))
 
-        return accumulated_loot
+        # return accumulated_loot
 
     def loot_over_time(self, team_name) -> List[Dict[str, Dict[str, int]]]:
         accumulated_loot = self.accumulated_with_dates(team_name)
         updated_player_dicts = []
 
-        for i, player in enumerate(self.teams[team_name]):
-            loot_dates = {player.name: accumulated_loot[i]}
+        for player in self.teams[team_name]:
+            loot_dates = {player.name: next(accumulated_loot)}
             updated_player_dicts.append(loot_dates)
 
         return updated_player_dicts
