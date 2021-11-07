@@ -3,9 +3,8 @@ from __future__ import annotations
 import functools
 import itertools
 import operator
-from typing import Dict, List, Tuple, Set
+from typing import Dict, List, Tuple, Set, Generator
 from dataclasses import dataclass
-import collections
 from rich import print as rprint
 
 from config import Config
@@ -205,18 +204,20 @@ class Ledger:
 
         return player_dates_loot_totals
 
-    def accumulate_loot_totals(self, team_name):
-        dicts = self.loot_per_raid(team_name)
-        for entry in dicts:
+    def accumulate_loot_totals(self, team_name) -> Generator[List[int]]:
+        player_dates_loot_totals = self.loot_per_raid(team_name)
+
+        for entry in player_dates_loot_totals:
             for name in entry:
                 loot_per_date = list(entry[name].values())
                 total_over_time = list(itertools.accumulate(loot_per_date))
                 yield total_over_time
 
-    def accumulated_with_dates(self, team_name):
+    def accumulated_with_dates(self, team_name) -> List[Dict[str, int]]:
         player_dates_loot = self.loot_per_raid(team_name)
         totals = self.accumulate_loot_totals(team_name)
         accumulated_loot = []
+
         for entry in player_dates_loot:
             for name in entry:
                 dates = list(entry[name].keys())
@@ -225,7 +226,7 @@ class Ledger:
 
         return accumulated_loot
 
-    def loot_over_time(self, team_name):
+    def loot_over_time(self, team_name) -> List[Dict[str, Dict[str, int]]]:
         accumulated_loot = self.accumulated_with_dates(team_name)
         updated_player_dicts = []
 
