@@ -223,10 +223,10 @@ class Ledger:
                 for total in totals:
                     yield dict(zip(dates, total))
 
-    def loot_over_time(self, team_name) -> List[Dict[str, Dict[str, int]]]:
+    def loot_over_time(self, team_name) -> Dict[str, Dict[str, int]]:
         accumulated_loot = self._accumulated_with_dates(team_name)
 
-        return [{player.name: next(accumulated_loot)} for player in self.teams[team_name]]
+        return {player.name: next(accumulated_loot) for player in self.teams[team_name]}
 
     @property
     def loot_allocation_all(self) -> Dict[str, int]:

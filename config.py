@@ -34,12 +34,12 @@ class Config:
     Source dir for raw data to be visualised
     """
 
-    output_charts = ("bar", "pie", "hist", "combined")
+    output_charts = ("bar", "pie", "hist", "combined", "over-time")
     """
     Available chart types
     """
 
-    excluded_charts = ("bar", "pie", "hist")
+    excluded_charts = ("bar", "pie", "hist", "combined")
     """
     Add charts to this tuple to exclude them from being generated
     """

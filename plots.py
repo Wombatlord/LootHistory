@@ -2,6 +2,8 @@ from typing import List, Tuple, Dict, Optional
 
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
+from rich.progress import track
 
 from config import Config
 from styles import choose_style, choose_bar_style, Style
@@ -170,6 +172,34 @@ class CombinedPieBar(Chart):
     def save_chart(self) -> None:
         self.populate_chart()
         plt.savefig(f"{Config.charts_dir}/{self.team_id}-bar-and-pie")
+
+
+class LootOverTime(Chart):
+    def __init__(self, loot_data):
+        self.loot_data = loot_data
+
+    def populate_chart(self) -> None:
+        for name in track(self.loot_data, description="[bold gold3]Processing...[/bold gold3]"):
+            plt.clf()
+            Data = {'Date': self.loot_data[name].keys(),
+                    'Loot': self.loot_data[name].values()
+                    }
+
+            df = pd.DataFrame(Data, columns=['Date', 'Loot'])
+
+            plt.plot(df['Date'], df['Loot'], color='red', marker='o')
+            plt.title('Loot Over Time', fontsize=14)
+            plt.xlabel('Date', fontsize=14)
+            plt.ylabel('Loot', fontsize=14)
+            plt.xticks(rotation=90)
+            plt.grid(True)
+            plt.savefig(f"{Config.charts_dir}/{name}-bar-and-pie")
+
+    def render(self) -> None:
+        raise NotImplementedError("Do not invoke the interface directly!")
+
+    def save_chart(self) -> None:
+        self.populate_chart()
 
 
 class Histogram(Chart):
