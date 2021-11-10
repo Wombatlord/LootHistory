@@ -17,12 +17,6 @@ class Chart:
     _team_id: str
     data: DataPoints
 
-    fonts: Dict[str, str] = {
-        "monospace": "monospace",
-        "roboto": "Roboto Mono Medium for Powerline",
-        "inconsolata": "Inconsolata NF"
-    }
-
     def normalise_dataset(self) -> DataSeries:
         series: DataSeries = tuple([point[i] for point in self.data] for i in (0, 1))
         return series
@@ -36,7 +30,7 @@ class Chart:
     def save_chart(self) -> None:
         raise NotImplementedError("Do not invoke the interface directly!")
 
-    def apply_style(self, text_color, label_color, edge_color, title_color, font) -> None:
+    def apply_style(self, text_color, label_color, edge_color, title_color, show_grid, grid_behind_data, font) -> None:
         plt.rcdefaults()
         plt.rcParams.update(
             {
@@ -44,27 +38,19 @@ class Chart:
                 'axes.labelcolor': label_color,
                 'axes.edgecolor': edge_color,
                 'axes.titlecolor': title_color,
+                'axes.grid': show_grid,
+                'axes.axisbelow': grid_behind_data,
                 'font.family': font,
                 'font.size': 12
             }
         )
 
-    def apply_bar_style(self, figure, axes, title, xlabel, tick_colors, face_color) -> None:
+    def apply_chart_style(self, figure, axes, title, xlabel, tick_colors, face_color, grid_color) -> None:
         axes.set_title(title)
         axes.set_xlabel(xlabel)
+        axes.grid(color=grid_color)
         axes.tick_params(axis='y', colors=tick_colors)
         axes.tick_params(axis='x', colors=tick_colors)
-        axes.invert_yaxis()  # labels read top-to-bottom
-        axes.set_facecolor(face_color)
-        figure.patch.set_facecolor(face_color)
-
-    def apply_over_time_style(self, figure, axes, title, xlabel, tick_colors, face_color):
-        axes.set_title(title)
-        axes.set_xlabel(xlabel)
-        axes.tick_params(axis='y', colors=tick_colors)
-        axes.tick_params(axis='x', colors=tick_colors)
-        axes.grid(True)
-        plt.xticks(rotation=45)
         axes.set_facecolor(face_color)
         figure.patch.set_facecolor(face_color)
 
@@ -126,7 +112,9 @@ class BarChart(Chart):
         ax.set_yticklabels(labels)
         ax.barh(y_pos, values, align='center', color=self.role_colors)
 
-        self.apply_bar_style(
+        self.apply_chart_style(
+            figure=fig,
+            axes=ax,
             **choose_bar_style(Config.style_choice)
         )
 
@@ -160,11 +148,12 @@ class CombinedPieBar(Chart):
         bar.set_yticks(y_pos)
         bar.set_yticklabels(labels)
 
-        self.apply_bar_style(
+        self.apply_chart_style(
             figure=fig,
             axes=bar,
             **choose_bar_style(Config.style_choice)
         )
+        bar.invert_yaxis()  # labels read top-to-bottom
 
         pie.pie(
             values,
@@ -190,10 +179,14 @@ class LootOverTime(Chart):
 
     def populate_chart(self, name) -> None:
         fig, ax = plt.subplots(tight_layout=True)
+        fig.suptitle(name, color=Style.colors["ocean"])
+        plt.xticks(rotation=45)
+        plt.locator_params(axis="y", integer=True)  # ensure integers for Y label
+
         self.apply_style(
             *choose_style(Config.style_choice)
         )
-        self.apply_over_time_style(
+        self.apply_chart_style(
             figure=fig,
             axes=ax,
             **choose_over_time_style(Config.style_choice)
@@ -205,7 +198,7 @@ class LootOverTime(Chart):
 
         df = pd.DataFrame(Data, columns=['Date', 'Loot'])
 
-        ax.plot(df['Date'], df['Loot'], color='red', marker='o')
+        ax.plot(df['Date'], df['Loot'], color=Style.colors["goldenrod"], marker='o')
 
     def render(self) -> None:
         raise NotImplementedError("Do not invoke the interface directly!")

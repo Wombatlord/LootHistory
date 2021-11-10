@@ -39,7 +39,7 @@ class Config:
     Available chart types
     """
 
-    excluded_charts = ("bar", "pie", "hist", "combined")
+    excluded_charts = ("bar", "pie", "hist")
     """
     Add charts to this tuple to exclude them from being generated
     """

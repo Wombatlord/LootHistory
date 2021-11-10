@@ -51,8 +51,10 @@ class Style:
         "default": {
             "text.color": colors["ocean"],
             "axes.labelcolor": colors["goldenrod"],
-            "axes.edgecolor": colors["ocean"],
+            "axes.edgecolor": colors["goldenrod"],
             "axes.titlecolor": colors["goldenrod"],
+            "axes.grid": True,
+            "axes.axisbelow": True,
             "font.family": fonts["inconsolata"],
         }
     }
@@ -62,15 +64,17 @@ class Style:
             "title": "Loot Assignment Totals",
             "xlabel": "Mainspec BIS / Upgrade pieces awarded",
             "tick_colors": colors["goldenrod"],
-            "face_color": colors["almost_black"]
+            "face_color": colors["almost_black"],
+            "grid_color": colors["ocean"]
         }
     }
 
     over_time_styles = {
         "default": {
             "title": "Loot Over Time",
-            "xlabel": "Raid Date",
+            "xlabel": None,
             "tick_colors": colors["goldenrod"],
-            "face_color": colors["almost_black"]
+            "face_color": colors["almost_black"],
+            "grid_color": colors["ocean"]
         }
     }
