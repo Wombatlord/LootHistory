@@ -67,8 +67,17 @@ class ReceivedItem:
         return any(exclusion in self.officer_note for exclusion in exclusions)
 
     @property
-    def from_instance(self) -> bool:
+    def from_excluded_raid(self) -> bool:
+        """
+        Add any of the following ID's to exclude that raid from data.
+
+        Gruul = 10
+        Mag = 11
+        SSC = 12
+        TK = 14
+        """
         instances: List[int] = [10, 11]
+
         return any(instance is self.instance_id for instance in instances)
 
     @property
@@ -118,7 +127,7 @@ class Player:
         return [
             item for item in self.received
             if not item.is_excluded and item.received_after(
-                Config.date_filter) and not item.from_instance and not item.is_pattern_or_plan
+                Config.date_filter) and not item.from_excluded_raid and not item.is_pattern_or_plan
         ]
 
 

@@ -6,7 +6,7 @@ import pandas as pd
 from rich.progress import track
 
 from config import Config
-from styles import choose_style, choose_bar_style, Style
+from styles import choose_style, choose_bar_style, Style, choose_over_time_style
 
 DataPoints = List[Tuple[str, int]]
 DataSeries = Tuple[List[str], List[int]]
@@ -27,7 +27,7 @@ class Chart:
         series: DataSeries = tuple([point[i] for point in self.data] for i in (0, 1))
         return series
 
-    def populate_chart(self) -> None:
+    def populate_chart(self, *args) -> None:
         raise NotImplementedError("Do not invoke the interface directly!")
 
     def render(self) -> None:
@@ -55,6 +55,16 @@ class Chart:
         axes.tick_params(axis='y', colors=tick_colors)
         axes.tick_params(axis='x', colors=tick_colors)
         axes.invert_yaxis()  # labels read top-to-bottom
+        axes.set_facecolor(face_color)
+        figure.patch.set_facecolor(face_color)
+
+    def apply_over_time_style(self, figure, axes, title, xlabel, tick_colors, face_color):
+        axes.set_title(title)
+        axes.set_xlabel(xlabel)
+        axes.tick_params(axis='y', colors=tick_colors)
+        axes.tick_params(axis='x', colors=tick_colors)
+        axes.grid(True)
+        plt.xticks(rotation=45)
         axes.set_facecolor(face_color)
         figure.patch.set_facecolor(face_color)
 
@@ -178,28 +188,33 @@ class LootOverTime(Chart):
     def __init__(self, loot_data):
         self.loot_data = loot_data
 
-    def populate_chart(self) -> None:
-        for name in track(self.loot_data, description="[bold gold3]Processing...[/bold gold3]"):
-            plt.clf()
-            Data = {'Date': self.loot_data[name].keys(),
-                    'Loot': self.loot_data[name].values()
-                    }
+    def populate_chart(self, name) -> None:
+        fig, ax = plt.subplots(tight_layout=True)
+        self.apply_style(
+            *choose_style(Config.style_choice)
+        )
+        self.apply_over_time_style(
+            figure=fig,
+            axes=ax,
+            **choose_over_time_style(Config.style_choice)
+        )
 
-            df = pd.DataFrame(Data, columns=['Date', 'Loot'])
+        Data = {'Date': self.loot_data[name].keys(),
+                'Loot': self.loot_data[name].values()
+                }
 
-            plt.plot(df['Date'], df['Loot'], color='red', marker='o')
-            plt.title('Loot Over Time', fontsize=14)
-            plt.xlabel('Date', fontsize=14)
-            plt.ylabel('Loot', fontsize=14)
-            plt.xticks(rotation=90)
-            plt.grid(True)
-            plt.savefig(f"{Config.charts_dir}/{name}-bar-and-pie")
+        df = pd.DataFrame(Data, columns=['Date', 'Loot'])
+
+        ax.plot(df['Date'], df['Loot'], color='red', marker='o')
 
     def render(self) -> None:
         raise NotImplementedError("Do not invoke the interface directly!")
 
     def save_chart(self) -> None:
-        self.populate_chart()
+        for name in track(self.loot_data, description=f"[bold gold3]Processing...[/bold gold3]"):
+            self.populate_chart(name)
+            plt.savefig(f"{Config.charts_dir}/{name}-loot-over-time")
+            plt.close()
 
 
 class Histogram(Chart):

@@ -136,7 +136,7 @@ def main(teams: List[str]) -> None:
         terminal_log_main_spec(guild, teams)
         write_chart_log(guild, teams)
 
-    for chart in charts: # , description="[bold gold3]Processing...[/bold gold3]"):
+    for chart in charts:  # track(charts, description="[bold gold3]Processing...[/bold gold3]"):
         # chart.render()
         chart.save_chart()
 
