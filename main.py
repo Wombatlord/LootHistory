@@ -30,6 +30,12 @@ def parse_args() -> List[str]:
     return [*({*args} & team_flags)]
 
 
+def welcome_message(console) -> None:
+    name = "[bold gold3]Council Prio![/bold gold3]"
+    message = f"\n[pale_green3]Welcome to {name} A data visualisation tool for keeping your Loot Council honest![/pale_green3]\n"
+    console.print(message, justify="center")
+
+
 def date_filter_prompt():
     date_prompt = "[bold pale_green3]Please enter a date:[/bold pale_green3]"
     month_pair = "[bold gold3]MM[/bold gold3]"
@@ -76,8 +82,9 @@ def loot_received_dates(guild, teams):
         rprint([guild.loot_over_time(team_names[team]) for team in teams])
 
 
-def clear_terminal():
+def clear_terminal(console):
     _ = call('clear' if os.name == 'posix' else 'cls')
+    console.rule("[bold gold3]Council Prio!")
 
 
 def construct_chart_list(guild, teams) -> List[plots.Chart]:
@@ -130,11 +137,13 @@ def get_history() -> List[dict]:
 
 
 def main(teams: List[str], console: Console) -> None:
-    prep_charts_dir()
-    prep_logs_dir()
+    clear_terminal(console)
+    welcome_message(console)
 
-    clear_terminal()
-    console.rule("[bold gold3]Council Prio!")
+    with console.status("Monkeying around...", spinner="monkey"):
+        prep_charts_dir()
+        prep_logs_dir()
+
     date_filter_prompt()
     style_choice_prompt()
 
@@ -144,8 +153,7 @@ def main(teams: List[str], console: Console) -> None:
     charts = construct_chart_list(guild, teams)
 
     if log_prompt():
-        clear_terminal()
-        console.rule(f"[bold gold3]Council Prio!")
+        clear_terminal(console)
         terminal_log_main_spec(guild, teams)
         write_chart_log(guild, teams)
 
