@@ -9,6 +9,10 @@ def choose_bar_style(style) -> Dict[str, str]:
     return {key: value for (key, value) in Style.bar_styles[style].items()}
 
 
+def choose_over_time_style(style) -> Dict[str, str]:
+    return {key: value for (key, value) in Style.over_time_styles[style].items()}
+
+
 class Style:
     """
     Colors & Visual Styling element configuration.
@@ -47,8 +51,10 @@ class Style:
         "default": {
             "text.color": colors["ocean"],
             "axes.labelcolor": colors["goldenrod"],
-            "axes.edgecolor": colors["ocean"],
+            "axes.edgecolor": colors["goldenrod"],
             "axes.titlecolor": colors["goldenrod"],
+            "axes.grid": True,
+            "axes.axisbelow": True,
             "font.family": fonts["inconsolata"],
         }
     }
@@ -58,6 +64,17 @@ class Style:
             "title": "Loot Assignment Totals",
             "xlabel": "Mainspec BIS / Upgrade pieces awarded",
             "tick_colors": colors["goldenrod"],
-            "face_color": colors["almost_black"]
+            "face_color": colors["almost_black"],
+            "grid_color": colors["ocean"]
+        }
+    }
+
+    over_time_styles = {
+        "default": {
+            "title": "Loot Over Time",
+            "xlabel": None,
+            "tick_colors": colors["goldenrod"],
+            "face_color": colors["almost_black"],
+            "grid_color": colors["ocean"]
         }
     }

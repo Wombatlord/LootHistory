@@ -34,7 +34,7 @@ class Config:
     Source dir for raw data to be visualised
     """
 
-    output_charts = ("bar", "pie", "hist", "combined")
+    output_charts = ("bar", "pie", "hist", "combined", "over-time")
     """
     Available chart types
     """

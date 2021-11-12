@@ -71,7 +71,7 @@ def loot_received_dates(guild, teams):
     for team in teams:
         # rprint(guild.unique_dates_to_dict(team_names[team]))
         # rprint(guild.loot_per_raid(team_names[team]))
-        rprint(guild.loot_over_time(team_names[team]))
+        rprint([guild.loot_over_time(team_names[team]) for team in teams])
 
 
 def construct_chart_list(guild, teams) -> List[plots.Chart]:
@@ -81,17 +81,20 @@ def construct_chart_list(guild, teams) -> List[plots.Chart]:
     datasets = [guild.get_main_spec_dataset(team_names[team]) for team in teams]
     color_sequences = [guild.sequence_role_colors(datasets[i], team_names[team]) for i, team in enumerate(teams)]
 
-    args_list = [(color_sequences[i], datasets[i], team) for i, team in enumerate(teams)]
+    accumulated_loot_data = [guild.loot_over_time(team_names[team]) for team in teams]
+
+    args_list = [(color_sequences[i], datasets[i], accumulated_loot_data[i], team) for i, team in enumerate(teams)]
 
     charts = functools.reduce(add, [select_charts(*args) for args in args_list])
     return charts
 
 
-def select_charts(color_sequence: List[str], dataset: DataSet, team_id: str) -> List[plots.Chart]:
+def select_charts(color_sequence: List[str], dataset: DataSet, accumulated_loot_data, team_id: str) -> List[plots.Chart]:
     charts = {
         "bar": plots.BarChart(dataset, color_sequence),
         "pie": plots.PieChart(dataset, color_sequence),
         "hist": plots.Histogram(dataset),
+        "over-time": plots.LootOverTime(accumulated_loot_data),
         "combined": plots.CombinedPieBar(dataset, color_sequence)
     }
     charts = [charts[chart_name] for chart_name in Config.get_charts_to_render()]
@@ -133,11 +136,11 @@ def main(teams: List[str]) -> None:
         terminal_log_main_spec(guild, teams)
         write_chart_log(guild, teams)
 
-    for chart in track(charts, description="[bold gold3]Processing...[/bold gold3]"):
+    for chart in charts:  # track(charts, description="[bold gold3]Processing...[/bold gold3]"):
         # chart.render()
         chart.save_chart()
 
-    loot_received_dates(guild, teams)
+    # loot_received_dates(guild, teams)
 
 
 console = Console()

@@ -67,8 +67,17 @@ class ReceivedItem:
         return any(exclusion in self.officer_note for exclusion in exclusions)
 
     @property
-    def from_instance(self) -> bool:
+    def from_excluded_raid(self) -> bool:
+        """
+        Add any of the following ID's to exclude that raid from data.
+
+        Gruul = 10
+        Mag = 11
+        SSC = 12
+        TK = 14
+        """
         instances: List[int] = [10, 11]
+
         return any(instance is self.instance_id for instance in instances)
 
     @property
@@ -118,7 +127,7 @@ class Player:
         return [
             item for item in self.received
             if not item.is_excluded and item.received_after(
-                Config.date_filter) and not item.from_instance and not item.is_pattern_or_plan
+                Config.date_filter) and not item.from_excluded_raid and not item.is_pattern_or_plan
         ]
 
 
@@ -223,10 +232,10 @@ class Ledger:
                 for total in totals:
                     yield dict(zip(dates, total))
 
-    def loot_over_time(self, team_name) -> List[Dict[str, Dict[str, int]]]:
+    def loot_over_time(self, team_name) -> Dict[str, Dict[str, int]]:
         accumulated_loot = self._accumulated_with_dates(team_name)
 
-        return [{player.name: next(accumulated_loot)} for player in self.teams[team_name]]
+        return {player.name: next(accumulated_loot) for player in self.teams[team_name]}
 
     @property
     def loot_allocation_all(self) -> Dict[str, int]:
