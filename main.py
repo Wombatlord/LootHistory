@@ -1,9 +1,11 @@
 #! /usr/bin/env python
 import functools
 import json
+import os
 import sys
 from operator import add
 from pathlib import Path
+from subprocess import call
 from typing import List
 from rich import print as rprint
 from rich.console import Console
@@ -74,6 +76,10 @@ def loot_received_dates(guild, teams):
         rprint([guild.loot_over_time(team_names[team]) for team in teams])
 
 
+def clear_terminal():
+    _ = call('clear' if os.name == 'posix' else 'cls')
+
+
 def construct_chart_list(guild, teams) -> List[plots.Chart]:
     """
     For the list of teams supplied, a list of charts to be saved is returned
@@ -127,12 +133,17 @@ def main(teams: List[str]) -> None:
     prep_charts_dir()
     prep_logs_dir()
 
+    clear_terminal()
+    date_filter_prompt()
+    style_choice_prompt()
+
     history = get_history()
     guild = Ledger(history)
 
     charts = construct_chart_list(guild, teams)
 
     if log_prompt():
+        clear_terminal()
         terminal_log_main_spec(guild, teams)
         write_chart_log(guild, teams)
 
@@ -143,9 +154,7 @@ def main(teams: List[str]) -> None:
     # loot_received_dates(guild, teams)
 
 
-console = Console()
+# console = Console()
 
 chosen_team = parse_args()
-date_filter_prompt()
-style_choice_prompt()
 main(chosen_team)
