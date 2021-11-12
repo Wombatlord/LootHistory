@@ -129,11 +129,12 @@ def get_history() -> List[dict]:
     return history
 
 
-def main(teams: List[str]) -> None:
+def main(teams: List[str], console: Console) -> None:
     prep_charts_dir()
     prep_logs_dir()
 
     clear_terminal()
+    console.rule("[bold gold3]Council Prio!")
     date_filter_prompt()
     style_choice_prompt()
 
@@ -144,6 +145,7 @@ def main(teams: List[str]) -> None:
 
     if log_prompt():
         clear_terminal()
+        console.rule(f"[bold gold3]Council Prio!")
         terminal_log_main_spec(guild, teams)
         write_chart_log(guild, teams)
 
@@ -154,7 +156,6 @@ def main(teams: List[str]) -> None:
     # loot_received_dates(guild, teams)
 
 
-# console = Console()
-
+_console = Console()
 chosen_team = parse_args()
-main(chosen_team)
+main(chosen_team, _console)
