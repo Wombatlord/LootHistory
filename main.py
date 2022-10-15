@@ -15,7 +15,7 @@ from rich.progress import track
 import plots
 from config import Config
 from ledger import Ledger, DataSet
-from logger.file_logger import FilesystemLogger, TerminalLogger
+from logger.file_logger import TerminalLogger  # FilesystemLogger
 from styles import Style
 
 team_x = "Team X - Rainbow"
@@ -38,14 +38,15 @@ def welcome_message(console) -> None:
 
 def date_filter_prompt():
     date_prompt = "[bold pale_green3]Please enter a date:[/bold pale_green3]"
+    year_end = "[bold red]YY[/bold red]"
     month_pair = "[bold gold3]MM[/bold gold3]"
     day_pair = "[bold cyan]DD[/bold cyan]"
 
-    rprint(f"{date_prompt} {month_pair}{day_pair}")
+    rprint(f"{date_prompt} {year_end}{month_pair}{day_pair}")
 
     supplied_date = input()
     rprint()
-    Config.date_filter = f"2021{supplied_date}"
+    Config.date_filter = f"20{supplied_date}"
 
 
 def style_choice_prompt():
